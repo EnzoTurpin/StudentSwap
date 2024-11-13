@@ -72,6 +72,16 @@ try {
     $stmt->execute([$user_id]);
     $accepted_services = $stmt->fetchAll();
 
+    // Récupérer les services demandés par l'utilisateur connecté (status 'requested')
+    $sql = "SELECT sr.*, s.title, s.points_cost, s.user_id AS provider_id
+        FROM service_requests sr
+        JOIN services s ON sr.service_id = s.id
+        WHERE sr.requester_id = ? AND sr.status = 'requested'";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$user_id]);
+    $requested_by_user_services = $stmt->fetchAll();
+
+
 
     // Mise à jour des informations du profil
     if ($profile_user_id == $user_id && $_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -232,6 +242,29 @@ try {
                         <?php endif; ?>
                     </div>
                 </div>
+                <!-- Fenêtre "Mes demandes de services" -->
+                <div class="window">
+                    <h3>Mes demandes de services</h3>
+                    <div class="window-content">
+                        <?php if (count($requested_by_user_services) > 0): ?>
+                        <?php foreach ($requested_by_user_services as $service): ?>
+                        <div class="request-card">
+                            <h4><?= htmlspecialchars($service['title']) ?></h4>
+                            <p><strong>Coût :</strong> <?= htmlspecialchars($service['points_cost']) ?> points</p>
+                            <form method="POST" action="../controllers/cancel_request.php">
+                                <input type="hidden" name="service_id"
+                                    value="<?= htmlspecialchars($service['service_id']) ?>">
+                                <input type="hidden" name="request_id" value="<?= htmlspecialchars($service['id']) ?>">
+                                <button type="submit" class="button-delete">❌ Annuler la demande</button>
+                            </form>
+                        </div>
+                        <?php endforeach; ?>
+                        <?php else: ?>
+                        <p>Aucune demande de service en cours.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
 
             </div>
 
