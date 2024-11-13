@@ -1,49 +1,48 @@
 <?php
+// Inclusion de la configuration de la base de données et démarrage de la session
 include '../config/db.php';
 session_start();
 
+// Vérification si l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../views/login.php");
     exit;
 }
 
-// Récupérer les catégories depuis la base de données
+// Récupération des catégories
 $sql = "SELECT * FROM categories";
 $stmt = $conn->query($sql);
 $categories = $stmt->fetchAll();
 
-// Récupérer les informations de l'utilisateur connecté
+// Récupération des informations de l'utilisateur connecté
 $user_id = $_SESSION['user_id'];
 $sql = "SELECT username, email, points, profile_picture FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
-
-// Utiliser l'image par défaut si aucune photo de profil n'est définie
 $profile_picture = $user['profile_picture'] ?? 'default-picture.png';
 
-// Récupérer les villes depuis la base de données
+// Récupération des villes
 $sql = "SELECT * FROM cities ORDER BY name ASC";
 $stmt = $conn->query($sql);
 $cities = $stmt->fetchAll();
 
+// Traitement du formulaire d'ajout de service
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $user_id = $_SESSION['user_id'];
     $title = $_POST['title'];
     $description = $_POST['description'];
     $category_id = $_POST['category_id'];
     $location = $_POST['location'];
     $points_cost = $_POST['points_cost'];
 
-    // Insérer le service dans la base de données
+    // Insertion du service dans la base de données
     $sql = "INSERT INTO services (user_id, title, description, category_id, location, points_cost) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
-    if ($stmt->execute([$user_id, $title, $description, $category_id, $location, $points_cost])) {
-        $message = "Service ajouté avec succès.";
-    } else {
-        $message = "Erreur lors de l'ajout du service.";
-    }
+    // Vérification de la réussite de l'insertion
+    $message = $stmt->execute([$user_id, $title, $description, $category_id, $location, $points_cost])
+        ? "Service ajouté avec succès."
+        : "Erreur lors de l'ajout du service.";
 }
 ?>
 
@@ -59,10 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
     <div class="wrapper">
-        <?php
-        include '../includes/header.php';
-        ?>
+        <!-- Inclusion de l'en-tête -->
+        <?php include '../includes/header.php'; ?>
 
+        <!-- Formulaire d'ajout de service -->
         <div class="form-container">
             <h2>Ajouter un service</h2>
             <?php if (isset($message)): ?>
@@ -72,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="text" name="title" placeholder="Titre du service" required>
                 <textarea name="description" placeholder="Description" required></textarea>
 
-                <!-- Liste déroulante des catégories -->
+                <!-- Sélection de la catégorie -->
                 <select name="category_id" required>
                     <option value="">Sélectionnez une catégorie</option>
                     <?php foreach ($categories as $category): ?>
@@ -80,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <?php endforeach; ?>
                 </select>
 
-                <!-- Liste déroulante des villes -->
+                <!-- Sélection de la ville -->
                 <select name="location" required>
                     <option value="">Sélectionner une ville</option>
                     <?php foreach ($cities as $city): ?>
@@ -91,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <input type="number" name="points_cost" placeholder="Coût en points" required min="0">
 
-                <!-- Conteneur pour les boutons -->
+                <!-- Boutons d'action -->
                 <div class="button-container">
                     <button type="submit" class="button">Ajouter le service</button>
                     <a href="../views/index.php" class="button back-button">Retour à l'accueil</a>
@@ -99,9 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </form>
         </div>
 
-        <?php
-        include '../includes/footer.php';
-        ?>
+        <!-- Inclusion du pied de page -->
+        <?php include '../includes/footer.php'; ?>
     </div>
 </body>
 

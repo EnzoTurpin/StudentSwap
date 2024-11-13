@@ -2,7 +2,7 @@
 session_start();
 include '../config/db.php';
 
-// Vérifier si l'utilisateur est connecté
+// Vérification de la connexion de l'utilisateur
 if (!isset($_SESSION['user_id']) || !isset($_GET['id'])) {
     header("Location: login.php");
     exit;
@@ -15,11 +15,10 @@ $stmt = $conn->prepare($sql);
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
-// Utiliser l'image par défaut si aucune photo de profil n'est définie
+// Définir la photo de profil par défaut si aucune n'est définie
 $profile_picture = $user['profile_picture'] ?? 'default-picture.png';
 
-
-$user_id = $_SESSION['user_id'];
+// Initialiser les variables pour le service et le message
 $service_id = $_GET['id'];
 $message = "";
 
@@ -33,19 +32,21 @@ try {
     $stmt->execute([$service_id]);
     $service = $stmt->fetch();
 
+    // Vérifier si le service existe
     if (!$service) {
         die("Le service n'existe pas.");
     }
 
-    // Ajouter une évaluation
+    // Ajouter une évaluation lorsque le formulaire est soumis
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $rating = $_POST['rating'];
         $comment = $_POST['comment'];
 
-        // Vérifier que la note est valide
+        // Valider la note
         if ($rating < 1 || $rating > 5) {
             $message = "La note doit être entre 1 et 5.";
         } else {
+            // Insérer l'évaluation dans la base de données
             $sql = "INSERT INTO reviews (service_id, user_id, rating, comment) VALUES (?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$service_id, $user_id, $rating, $comment]);
@@ -53,6 +54,7 @@ try {
         }
     }
 } catch (PDOException $e) {
+    // Gestion des erreurs
     $message = "Erreur lors de l'évaluation : " . $e->getMessage();
 }
 ?>
@@ -69,10 +71,10 @@ try {
 
 <body>
     <div class="wrapper">
-        <?php
-        include '../includes/header.php';
-        ?>
+        <!-- Inclusion de l'en-tête -->
+        <?php include '../includes/header.php'; ?>
 
+        <!-- Formulaire d'évaluation -->
         <main class="main-content">
             <section class="review-form">
                 <h2>Évaluer le service : <?= htmlspecialchars($service['title']) ?></h2>
@@ -83,11 +85,11 @@ try {
                     <label for="rating">Note (1 à 5 étoiles) :</label>
                     <select name="rating" id="rating" required>
                         <option value="">Choisir une note</option>
-                        <option value="1">⭐ - Nul </option>
-                        <option value="2">⭐⭐ - Pas top </option>
-                        <option value="3">⭐⭐⭐ - Moyen </option>
-                        <option value="4">⭐⭐⭐⭐ - Très bien </option>
-                        <option value="5">⭐⭐⭐⭐⭐ - Execellent </option>
+                        <option value="1">⭐ - Nul</option>
+                        <option value="2">⭐⭐ - Pas top</option>
+                        <option value="3">⭐⭐⭐ - Moyen</option>
+                        <option value="4">⭐⭐⭐⭐ - Très bien</option>
+                        <option value="5">⭐⭐⭐⭐⭐ - Excellent</option>
                     </select>
 
                     <label for="comment">Commentaire :</label>
@@ -98,9 +100,8 @@ try {
             </section>
         </main>
 
-        <?php
-        include '../includes/footer.php';
-        ?>
+        <!-- Inclusion du pied de page -->
+        <?php include '../includes/footer.php'; ?>
     </div>
 </body>
 

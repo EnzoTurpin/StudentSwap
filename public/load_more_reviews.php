@@ -1,17 +1,19 @@
 <?php
 include '../config/db.php';
 
+// Récupération de l'ID de l'utilisateur et des paramètres de pagination (offset et limit)
 $user_id = $_GET['user_id'] ?? null;
 $offset = intval($_GET['offset'] ?? 0);
 $limit = 5;
 
+// Vérification que l'ID de l'utilisateur est fourni
 if (!$user_id) {
     echo "Erreur : ID utilisateur manquant.";
     exit;
 }
 
 try {
-    // Requête pour récupérer les avis avec des variables pour LIMIT et OFFSET
+    // Requête pour récupérer les avis associés aux services de l'utilisateur
     $sql = "SELECT reviews.*, users.username AS reviewer_name
             FROM reviews
             JOIN users ON reviews.user_id = users.id
@@ -24,13 +26,13 @@ try {
     $stmt->execute([$user_id]);
     $reviews = $stmt->fetchAll();
 
-    // Vérifier s'il y a des avis
+    // Vérification s'il y a des avis récupérés
     if (empty($reviews)) {
         echo "NO_MORE_REVIEWS";
         exit;
     }
 
-    // Générer le HTML pour chaque avis
+    // Génération du HTML pour chaque avis
     foreach ($reviews as $review) {
         echo '<div class="review-card">';
         echo '<h4>Évalué par : ' . htmlspecialchars($review['reviewer_name']) . '</h4>';
@@ -40,6 +42,7 @@ try {
         echo '</div>';
     }
 } catch (PDOException $e) {
+    // Gestion des erreurs lors de l'exécution de la requête
     echo "Erreur lors de la récupération des avis : " . $e->getMessage();
 }
 ?>

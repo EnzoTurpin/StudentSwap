@@ -12,11 +12,12 @@ $stmt = $conn->prepare($sql);
 $stmt->execute([$user_id]);
 $logged_in_user = $stmt->fetch();
 
+// Déterminer la photo de profil de l'utilisateur connecté
 if ($logged_in_user && !empty($logged_in_user['profile_picture'])) {
     $logged_in_user_picture = $logged_in_user['profile_picture'];
 }
 
-// Récupérer l'ID de l'utilisateur à afficher
+// Récupérer l'ID de l'utilisateur dont on veut afficher le profil
 $profile_user_id = $_GET['id'] ?? null;
 if (!$profile_user_id) {
     header("Location: index.php");
@@ -28,17 +29,18 @@ $reviews = [];
 $user_services = [];
 
 try {
-    // Récupérer les informations de l'utilisateur dont on consulte le profil
+    // Récupérer les informations de l'utilisateur à afficher
     $sql = "SELECT id, username, email, points, profile_picture FROM users WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->execute([$profile_user_id]);
     $user = $stmt->fetch();
 
+    // Vérifier si l'utilisateur existe
     if (!$user) {
         die("L'utilisateur n'existe pas.");
     }
 
-    // Définir la photo de profil de l'utilisateur visité
+    // Définir la photo de profil de l'utilisateur à afficher
     $profile_picture = $user['profile_picture'] ?? 'default-picture.png';
     $profile_picture_path = file_exists("../uploads/profile_pictures/" . $profile_picture) ?
         "../uploads/profile_pictures/" . htmlspecialchars($profile_picture) :
@@ -55,7 +57,7 @@ try {
     $average_rating = $review_data['average_rating'] ? round($review_data['average_rating'], 1) : 'Pas encore évalué';
     $total_reviews = $review_data['total_reviews'] ?? 0;
 
-    // Récupérer les 3 premiers avis
+    // Récupérer les 3 premiers avis pour l'utilisateur
     $sql = "SELECT reviews.*, users.username AS reviewer_name 
             FROM reviews
             JOIN users ON reviews.user_id = users.id
@@ -92,6 +94,7 @@ try {
     <div class="wrapper">
         <?php include '../includes/header.php'; ?>
 
+        <!-- Section d'affichage des informations de profil -->
         <main class="main-content">
             <section class="profile-info">
                 <h2>Profil de <?= htmlspecialchars($user['username']) ?></h2>
@@ -101,7 +104,9 @@ try {
                 <p><strong>Solde de points :</strong> <?= htmlspecialchars($user['points']) ?> points</p>
                 <p><strong>Évaluation moyenne :</strong> <?= $average_rating ?> / 5 (<?= $total_reviews ?> avis)</p>
             </section>
+
             <div class="profile-container">
+                <!-- Section des services proposés -->
                 <section class="user-services">
                     <h2>Services proposés par <?= htmlspecialchars($user['username']) ?></h2>
                     <div class="service-list">
@@ -122,6 +127,7 @@ try {
                     </div>
                 </section>
 
+                <!-- Section des avis reçus -->
                 <div class="reviews-container">
                     <h2>Avis reçus</h2>
                     <section class="user-reviews">

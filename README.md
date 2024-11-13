@@ -1,65 +1,191 @@
 # StudentSwap
 
-**StudentSwap** est une application web interactive qui permet aux étudiants de proposer des services qu'ils peuvent offrir et de demander des services dont ils ont besoin. Cette plateforme facilite les échanges de compétences entre étudiants, favorisant l'entraide et le partage.
+**StudentSwap** est une application web interactive conçue pour faciliter les échanges de services entre étudiants. Cette plateforme permet aux utilisateurs de proposer des services qu'ils peuvent offrir, ainsi que de demander des services dont ils ont besoin, tout en utilisant un système de points pour encourager les échanges.
 
-## Table des matières
+## 🌟 Fonctionnalités
 
-- [Fonctionnalités](#fonctionnalités)
-- [Technologies utilisées](#technologies-utilisées)
-- [Prérequis](#prérequis)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Utilisation](#utilisation)
-- [Arborescence du projet](#arborescence-du-projet)
-- [Contributeurs](#contributeurs)
+1. **Proposition de Services** :
 
-## Fonctionnalités
+   - Les étudiants peuvent créer des annonces pour proposer des services variés :
+     - Aide aux devoirs ou aux cours.
+     - Prêt de matériel (livres, ordinateurs, etc.).
+     - Cours particuliers.
+     - Organisation d'études de groupe.
 
-- **Inscription et Connexion** : Les utilisateurs peuvent créer un compte, se connecter, et gérer leurs informations personnelles.
-- **Ajout et gestion des services** : Les utilisateurs peuvent proposer des services, les modifier ou les supprimer.
-- **Recherche avancée** : Les utilisateurs peuvent filtrer les services par catégorie, ville ou mots-clés.
-- **Demande de services** : Les utilisateurs peuvent demander un service et échanger des points pour compléter la transaction.
-- **Évaluations et avis** : Les utilisateurs peuvent laisser des avis et des notes sur les services reçus.
-- **Gestion des demandes** : Les demandes peuvent être acceptées ou rejetées par le fournisseur du service.
-- **Profil utilisateur** : Affichage du profil avec les services proposés, les avis reçus et les informations de l'utilisateur.
+2. **Demande de Services** :
 
-## Technologies utilisées
+   - Les utilisateurs peuvent rechercher et demander des services proposés par d'autres étudiants.
+   - Les annonces peuvent être filtrées par catégorie, localisation et type de service.
 
-- **Front-end** :
-  - HTML, CSS (`style.css`) pour l'interface utilisateur
-  - JavaScript pour l'interactivité
-- **Back-end** :
-  - PHP pour la logique serveur
-  - PDO pour la gestion de la base de données
-- **Base de données** :
-  - MySQL pour stocker les utilisateurs, services, catégories, villes et avis
+3. **Système d'Échange Basé sur des Points** :
 
-## Prérequis
+   - Un système de points est utilisé pour faciliter les échanges :
+     - Offrir un service rapporte des points.
+     - Demander un service coûte des points.
+     - Les utilisateurs peuvent accumuler des points et les utiliser pour accéder à d'autres services.
 
-- PHP >= 7.4
-- MySQL >= 5.7
-- Serveur Apache ou Nginx
-- Navigateur web moderne (Chrome, Firefox, etc.)
+4. **Interface Utilisateur Conviviale** :
 
-## Installation
+   - Les utilisateurs peuvent :
+     - Créer un compte et gérer leur profil.
+     - Publier et consulter des annonces.
+     - Évaluer les services reçus et donner des retours d'expérience.
 
-1. Clonez le projet :
+5. **Sécurité et Authentification** :
+
+   - Authentification via un système de connexion sécurisé.
+   - Accès restreint aux fonctionnalités de l'application pour les utilisateurs connectés uniquement.
+   - Protection des données des utilisateurs via des requêtes préparées et des mots de passe hachés.
+
+6. **Gestion des Données** :
+   - Utilisation d'une base de données pour stocker les informations sur les utilisateurs, les services, les transactions et les points.
+
+## 🛠️ Installation
+
+Pour installer et exécuter ce projet en local :
+
+1. **Prérequis** :
+
+   - Serveur Apache (via XAMPP, WAMP ou MAMP).
+   - PHP 7.4 ou supérieur.
+   - Base de données MySQL.
+
+2. **Cloner le projet** :
 
    ```bash
-   git clone https://github.com/votre-utilisateur/StudentSwap.git
-   cd StudentSwap
+   git clone https://github.com/votre-utilisateur/studentswap.git
    ```
 
-2. Configurez la base de données :
+3. **Configuration de la base de données** :
 
-   - Créez une base de données nommée `studentswap`.
-   - Importez le fichier `studentswap.sql` dans la base de données :
+   - Importez le fichier `studentswap.sql` dans votre base de données MySQL.
+   - Modifiez le fichier `config/db.php` avec vos paramètres de connexion :
+     ```php
+     $host = 'localhost';
+     $dbname = 'studentswap';
+     $username = 'root';
+     $password = '';
+     ```
 
+4. **Démarrer le serveur** :
+   - Placez le projet dans le dossier `htdocs` (si vous utilisez XAMPP).
+   - Démarrez Apache et MySQL depuis votre panneau de contrôle (XAMPP/WAMP/MAMP).
+   - Accédez à l'application via [http://localhost/studentswap/views/index.php](http://localhost/studentswap/views/index.php).
+
+## 📂 Structure du Projet
+
+```plaintext
+studentswap/
+├── assets/
+│   ├── css/
+│   │   └── style.css
+│   ├── img/
+│   │   └── default-picture.png
+├── config/
+│   ├── db.php
+│   └── studentswap.sql
+├── controllers/
+│   ├── add_service.php
+│   ├── cancel_request.php
+│   ├── delete_service.php
+│   ├── handle_request.php
+│   └── request_service.php
+├── includes/
+│   ├── header.php
+│   └── footer.php
+├── public/
+│   ├── load_more_reviews.php
+│   └── logout.php
+├── uploads/
+│   └── profile_pictures/
+├── views/
+│   ├── index.php
+│   ├── login.php
+│   ├── register.php
+│   ├── profile.php
+│   ├── view_profile.php
+│   ├── leave_review.php
+│   └── reset_password.php
+├── README.md
+```
+
+## 💾 Base de Données
+
+Le projet utilise une base de données MySQL nommée `studentswap`. Voici les principales tables :
+
+- **users** : stocke les informations des utilisateurs (id, nom d'utilisateur, email, mot de passe, points).
+- **services** : stocke les services proposés par les utilisateurs (id, titre, description, catégorie, localisation, coût en points).
+- **service_requests** : stocke les demandes de services (id, service_id, requester_id, statut).
+- **reviews** : stocke les avis laissés par les utilisateurs sur les services reçus (id, service_id, user_id, note, commentaire).
+
+## 📄 Exemples de Code
+
+### Exemple de Connexion à la Base de Données (`db.php`)
+
+```php
+<?php
+$host = 'localhost';
+$dbname = 'studentswap';
+$username = 'root';
+$password = '';
+
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Erreur de connexion : " . $e->getMessage());
+}
+?>
+```
+
+## 🔒 Sécurité
+
+- Utilisation des requêtes préparées pour éviter les injections SQL.
+- Les mots de passe des utilisateurs sont stockés sous forme hachée (via `password_hash()`).
+- Les sessions sont utilisées pour gérer l'authentification et la sécurité des utilisateurs.
+
+## 📈 Améliorations Futures
+
+- Ajouter des notifications pour les demandes de services acceptées ou rejetées.
+- Implémenter un système de messagerie entre utilisateurs.
+- Ajouter des filtres de recherche avancés (par date, coût en points, etc.).
+- Optimiser l'interface pour les appareils mobiles.
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! Si vous souhaitez contribuer, veuillez créer une _issue_ ou soumettre une _pull request_.
+
+## 📝 Licence
+
+Ce projet est sous licence MIT. Consultez le fichier `LICENSE` pour plus de détails.
+
+## 📧 Contact
+
+Pour toute question ou suggestion, veuillez contacter l'équipe de développement à l'adresse : support@studentswap.com.
+
+## 📥 Importer la Base de Données
+
+Pour configurer la base de données `studentswap`, suivez ces étapes :
+
+1. Ouvrez **phpMyAdmin** ou utilisez la ligne de commande MySQL.
+2. Créez une nouvelle base de données nommée `studentswap` :
+
+   ```sql
+   CREATE DATABASE studentswap;
+   ```
+
+3. Importez le fichier `studentswap.sql` situé dans le dossier config de ce projet :
+
+   - Avec **phpMyAdmin** :
+     - Sélectionnez la base de données `studentswap`.
+     - Cliquez sur **Importer**, puis choisissez le fichier `studentswap.sql`.
+     - Cliquez sur **Exécuter** pour importer la structure et les données.
+   - Avec la **ligne de commande MySQL** :
      ```bash
      mysql -u root -p studentswap < studentswap.sql
      ```
 
-3. Configurez la connexion à la base de données dans `config/db.php` :
+4. Mettez à jour vos informations de connexion à la base de données dans le fichier `config/db.php` :
 
    ```php
    $host = 'localhost';
@@ -68,73 +194,4 @@
    $password = '';
    ```
 
-4. Démarrez le serveur PHP :
-
-   ```bash
-   php -S localhost:8000
-   ```
-
-5. Accédez à l'application à l'adresse :
-
-   ```
-   http://localhost:8000/views/index.php
-   ```
-
-## Configuration
-
-- **Base de données** : Modifiez `config/db.php` pour configurer la connexion à votre base de données.
-- **Images de profil** : Les images de profil sont stockées dans `uploads/profile_pictures/`.
-
-## Arborescence du projet
-
-```
-StudentSwap/
-├── assets/
-│   ├── css/
-│   │   └── style.css
-│   ├── img/
-│   │   └── default-picture.png
-│   └── js/
-├── config/
-│   └── db.php
-├── controllers/
-│   ├── add_service.php
-│   ├── delete_service.php
-│   ├── handle_request.php
-│   └── request_service.php
-├── includes/
-│   ├── footer.php
-│   └── header.php
-├── public/
-│   ├── load_more_reviews.php
-│   └── logout.php
-├── uploads/
-│   └── profile_pictures/
-│       └── profile_2.jpg
-├── views/
-│   ├── index.php
-│   ├── leave_review.php
-│   ├── login.php
-│   ├── profile.php
-│   ├── register.php
-│   ├── reset_password.php
-│   └── view_profile.php
-└── README.md
-```
-
-## Utilisation
-
-1. **Créer un compte** : Accédez à la page d'inscription (`register.php`).
-2. **Se connecter** : Connectez-vous avec votre email et mot de passe (`login.php`).
-3. **Ajouter un service** : Proposez un service via le formulaire d'ajout (`add_service.php`).
-4. **Rechercher des services** : Utilisez la barre de recherche sur la page d'accueil (`index.php`).
-5. **Demander un service** : Cliquez sur "Demander ce service" pour effectuer une transaction.
-6. **Évaluer un service** : Laissez une évaluation après avoir utilisé un service (`leave_review.php`).
-7. **Gérer votre profil** : Consultez votre profil et vos services proposés sur la page profil (`profile.php`).
-
-## Contributeurs
-
-- **Enzo Turpin**
-- **Daryl Matro**
-
-Contributions, issues et demandes de fonctionnalités sont les bienvenues !
+5. Votre base de données est maintenant prête à être utilisée avec l'application StudentSwap.

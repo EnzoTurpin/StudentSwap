@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Définir les variables utilisateur et profil
 $user_id = $_SESSION['user_id'];
 $profile_user_id = $_GET['id'] ?? $user_id;
 $message = "";
@@ -19,6 +20,7 @@ try {
     $stmt->execute([$profile_user_id]);
     $user = $stmt->fetch();
 
+    // Si l'utilisateur n'existe pas
     if (!$user) {
         die("L'utilisateur n'existe pas.");
     }
@@ -94,16 +96,19 @@ try {
             $file_ext = pathinfo($profile_picture['name'], PATHINFO_EXTENSION);
             $allowed_ext = ['jpg', 'jpeg', 'png', 'gif'];
 
+            // Vérifier si le fichier est une image
             if (in_array(strtolower($file_ext), $allowed_ext)) {
                 $new_filename = "profile_" . $user_id . "." . $file_ext;
                 $upload_dir = "../uploads/profile_pictures/";
                 $upload_path = $upload_dir . $new_filename;
 
+                // Déplacer le fichier téléchargé vers le dossier des photos de profil
                 if (move_uploaded_file($profile_picture['tmp_name'], $upload_path)) {
                     $sql = "UPDATE users SET profile_picture = ? WHERE id = ?";
                     $stmt = $conn->prepare($sql);
                     $stmt->execute([$new_filename, $user_id]);
 
+                    // Mettre à jour la variable de session
                     $user['profile_picture'] = $new_filename;
                     $_SESSION['profile_picture'] = $new_filename;
                     $message = "Photo de profil mise à jour avec succès.";
@@ -134,6 +139,7 @@ try {
 }
 ?>
 
+<!-- Code HTML pour la page de profil -->
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -149,6 +155,8 @@ try {
         <?php include '../includes/header.php'; ?>
 
         <main class="main-content">
+
+            <!-- Fenêtre "Mon Profil" -->
             <section class="profile-info">
                 <h2>Mon Profil</h2>
                 <?php if ($message): ?>
@@ -176,6 +184,7 @@ try {
                 <?php endif; ?>
             </section>
 
+            <!-- Fenêtre "Mes services" -->
             <div class="windows-container">
                 <div class="window">
                     <h3>Mes services</h3>
@@ -187,7 +196,7 @@ try {
                             <p><?= htmlspecialchars($service['description']) ?></p>
                             <form method="POST" action="../controllers/delete_service.php">
                                 <input type="hidden" name="service_id" value="<?= htmlspecialchars($service['id']) ?>">
-                                <button type="submit" class="button-delete">🗑️ Supprimer</button>
+                                <button type="submit" class="button-delete">&nbsp;&nbsp; 🗑️ &nbsp;&nbsp;</button>
                             </form>
 
                         </div>
@@ -242,6 +251,7 @@ try {
                         <?php endif; ?>
                     </div>
                 </div>
+
                 <!-- Fenêtre "Mes demandes de services" -->
                 <div class="window">
                     <h3>Mes demandes de services</h3>

@@ -3,33 +3,32 @@ session_start();
 include '../config/db.php';
 
 try {
-    // Vérifier si l'utilisateur est connecté
+    // Initialiser les variables utilisateur
     $user_id = $_SESSION['user_id'] ?? null;
     $profile_picture = 'default-picture.png';
     $user = null;
 
-    // Si l'utilisateur est connecté, récupérer ses informations
+    // Si l'utilisateur est connecté, récupérer ses informations depuis la base de données
     if ($user_id) {
         $sql = "SELECT username, email, COALESCE(points, 10) AS points, profile_picture FROM users WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$user_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Définir une valeur par défaut pour la photo de profil
+        // Définir la photo de profil par défaut si elle n'est pas définie
         $profile_picture = $user['profile_picture'] ?? 'default-picture.png';
 
-        // Si la clé 'points' n'est toujours pas présente, initialiser à 10
+        // Si les points ne sont pas présents, les initialiser à 10
         if (!array_key_exists('points', $user)) {
             $user['points'] = 10;
         }
     }
 
-    // Récupérer les catégories
+    // Récupérer les catégories et les villes
     $sql = "SELECT * FROM categories";
     $stmt = $conn->query($sql);
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Récupérer les villes
     $sql = "SELECT * FROM cities ORDER BY name ASC";
     $stmt = $conn->query($sql);
     $cities = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -39,24 +38,20 @@ try {
     $selected_city = $_GET['city_id'] ?? '';
     $search_query = $_GET['search_query'] ?? '';
 
-    // Construire la requête de recherche
+    // Construire la requête de recherche pour les services disponibles
     $sql = "SELECT services.*, users.username, categories.name AS category_name 
             FROM services 
             JOIN users ON services.user_id = users.id
             JOIN categories ON services.category_id = categories.id
             WHERE services.status = 'available'";
 
-    // Filtrer par catégorie si sélectionnée
+    // Ajouter des filtres de recherche selon les critères fournis
     if (!empty($selected_category)) {
         $sql .= " AND services.category_id = :category_id";
     }
-
-    // Filtrer par ville si sélectionnée
     if (!empty($selected_city)) {
         $sql .= " AND services.location = :city_id";
     }
-
-    // Filtrer par mot-clé si une recherche est effectuée
     if (!empty($search_query)) {
         $sql .= " AND (services.title LIKE :search_query OR services.description LIKE :search_query)";
     }
@@ -64,7 +59,7 @@ try {
     $sql .= " ORDER BY services.created_at DESC";
     $stmt = $conn->prepare($sql);
 
-    // Lier les paramètres
+    // Lier les paramètres de la requête
     if (!empty($selected_category)) {
         $stmt->bindParam(':category_id', $selected_category, PDO::PARAM_INT);
     }
@@ -76,9 +71,11 @@ try {
         $stmt->bindParam(':search_query', $search_query, PDO::PARAM_STR);
     }
 
+    // Exécuter la requête et récupérer les services
     $stmt->execute();
     $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
+    // Afficher une erreur en cas d'échec
     die("Erreur lors de la récupération des données : " . $e->getMessage());
 }
 ?>
@@ -95,13 +92,15 @@ try {
 
 <body>
     <div class="wrapper">
+        <!-- Inclusion de l'en-tête -->
         <?php include '../includes/header.php'; ?>
 
         <main class="main-content">
+            <!-- Section de bienvenue -->
             <section class="welcome">
                 <?php if ($user): ?>
                 <h2>Bienvenue, <?= htmlspecialchars($user['username']) ?>!</h2>
-                <p>Solde de points : <strong><?= htmlspecialchars($user['points'] ?? 10) ?></strong> points</p>
+                <p>Solde de points : <strong><?= htmlspecialchars($user['points']) ?></strong> points</p>
                 <?php else: ?>
                 <h2>Bienvenue sur StudentSwap !</h2>
                 <p>Connectez-vous pour accéder à toutes les fonctionnalités.</p>
@@ -137,7 +136,7 @@ try {
                 </section>
             </div>
 
-            <!-- Affichage des services -->
+            <!-- Liste des services disponibles -->
             <section class="services">
                 <h3>Services disponibles</h3>
                 <?php if (count($services) > 0): ?>
@@ -180,6 +179,7 @@ try {
             </section>
         </main>
 
+        <!-- Inclusion du pied de page -->
         <?php include '../includes/footer.php'; ?>
     </div>
 </body>
