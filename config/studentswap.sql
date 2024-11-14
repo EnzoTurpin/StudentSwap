@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mer. 13 nov. 2024 à 23:02
+-- Généré le : jeu. 14 nov. 2024 à 13:57
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -228,9 +228,7 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `points`, `created_a
 -- Index pour la table `accepted_services`
 --
 ALTER TABLE `accepted_services`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `service_id` (`service_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Index pour la table `categories`
@@ -293,7 +291,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pour la table `accepted_services`
 --
 ALTER TABLE `accepted_services`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `categories`
@@ -340,13 +338,6 @@ ALTER TABLE `users`
 --
 -- Contraintes pour les tables déchargées
 --
-
---
--- Contraintes pour la table `accepted_services`
---
-ALTER TABLE `accepted_services`
-  ADD CONSTRAINT `accepted_services_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `accepted_services_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`);
 
 --
 -- Contraintes pour la table `reviews`
