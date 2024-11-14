@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : jeu. 14 nov. 2024 à 13:57
+-- Généré le : mer. 13 nov. 2024 à 23:02
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -49,7 +49,7 @@ CREATE TABLE `categories` (
 -- Déchargement des données de la table `categories`
 --
 
-INSERT INTO `categories` (`id`, `name`) VALUES
+INSERT IGNORE INTO `categories` (`id`, `name`) VALUES
 (1, 'Aide aux devoirs'),
 (2, 'Prêt de matériel'),
 (3, 'Cours particuliers'),
@@ -71,7 +71,7 @@ CREATE TABLE `cities` (
 -- Déchargement des données de la table `cities`
 --
 
-INSERT INTO `cities` (`id`, `name`) VALUES
+INSERT IGNORE INTO `cities` (`id`, `name`) VALUES
 (1, 'Paris'),
 (2, 'Marseille'),
 (3, 'Lyon'),
@@ -150,7 +150,7 @@ CREATE TABLE `services` (
 -- Déchargement des données de la table `services`
 --
 
-INSERT INTO `services` (`id`, `user_id`, `title`, `description`, `category`, `location`, `points_cost`, `created_at`, `category_id`, `status`, `deleted_at`) VALUES
+INSERT IGNORE INTO `services` (`id`, `user_id`, `title`, `description`, `category`, `location`, `points_cost`, `created_at`, `category_id`, `status`, `deleted_at`) VALUES
 (11, 2, 'Daryl', 'Coucou', NULL, 'Lyon', 1, '2024-11-13 12:02:58', 2, 'accepted', NULL),
 (13, 2, 'Salut', 'Heyyy', NULL, 'Limoges', 1, '2024-11-13 12:03:29', 1, 'accepted', NULL),
 (14, 1, 'Test', 'Coucou', NULL, 'Lille', 1, '2024-11-13 12:26:03', 4, 'available', NULL);
@@ -174,7 +174,7 @@ CREATE TABLE `service_requests` (
 -- Déchargement des données de la table `service_requests`
 --
 
-INSERT INTO `service_requests` (`id`, `service_id`, `requester_id`, `status`, `requested_at`, `accepted_at`) VALUES
+INSERT IGNORE INTO  `service_requests` (`id`, `service_id`, `requester_id`, `status`, `requested_at`, `accepted_at`) VALUES
 (4, 13, 1, 'accepted', '2024-11-13 12:03:37', '2024-11-13 12:03:59'),
 (6, 11, 1, 'accepted', '2024-11-13 13:17:10', '2024-11-13 13:17:57');
 
@@ -213,7 +213,7 @@ CREATE TABLE `users` (
 -- Déchargement des données de la table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `points`, `created_at`, `profile_picture`) VALUES
+INSERT IGNORE INTO `users` (`id`, `username`, `email`, `password`, `points`, `created_at`, `profile_picture`) VALUES
 (1, 'Panda_Sauvage', 'enzoturpin35@orange.fr', '$2y$10$KyjRvmGWcdVOnucQjJ34yOTcnfPixRhMzMNVKti9Z3JtS2WzH.GGG', 3, '2024-11-10 16:58:03', 'default-picture.png'),
 (2, 'Enzo', 'enzoturpin3531@gmail.com', '$2y$10$PT5.enV34sJCdpZ3HaoxauPYxfecym3zc9IltNyvOZcfnqeJFf7W2', 2, '2024-11-10 19:46:14', 'profile_2.jpg'),
 (3, 'Daryl', 'daryl@gmail.com', '$2y$10$dAV7qoKuXs.pMTADnRLx8e6.la0QxYGOckdbp77rMQmbzInLpLwPy', 10, '2024-11-12 17:19:33', 'default-picture.png'),
@@ -228,7 +228,9 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `points`, `created_a
 -- Index pour la table `accepted_services`
 --
 ALTER TABLE `accepted_services`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `service_id` (`service_id`);
 
 --
 -- Index pour la table `categories`
@@ -291,7 +293,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pour la table `accepted_services`
 --
 ALTER TABLE `accepted_services`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `categories`
@@ -338,6 +340,13 @@ ALTER TABLE `users`
 --
 -- Contraintes pour les tables déchargées
 --
+
+--
+-- Contraintes pour la table `accepted_services`
+--
+ALTER TABLE `accepted_services`
+  ADD CONSTRAINT `accepted_services_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `accepted_services_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`);
 
 --
 -- Contraintes pour la table `reviews`
