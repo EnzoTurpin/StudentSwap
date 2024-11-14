@@ -53,11 +53,12 @@ Pour installer et exécuter ce projet en local :
 2. **Cloner le projet** :
 
    ```bash
-   git clone https://github.com/votre-utilisateur/studentswap.git
+   git clone https://github.com/EnzoTurpin/StudentSwap
    ```
 
 3. **Configuration de la base de données** :
 
+   - Créez une nouvelle base de données vierge excactement `studentswap`
    - Importez le fichier `studentswap.sql` dans votre base de données MySQL.
    - Modifiez le fichier `config/db.php` avec vos paramètres de connexion :
      ```php
