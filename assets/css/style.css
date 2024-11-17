@@ -147,8 +147,8 @@ svg {
 }
 
 .form-container input[class="login-input"] {
-  width: 375px; /* Ajustez cette valeur selon vos besoins */
-  max-width: 100%; /* Pour s'assurer qu'il ne dépasse pas le conteneur sur les petits écrans */
+  width: 375px;
+  max-width: 100%;
 }
 
 .form-container input {
@@ -305,6 +305,15 @@ svg {
 
 .service-item .btn:hover {
   background-color: #a5e6ba;
+}
+
+.error-message {
+  color: red;
+  background-color: #ffe6e6;
+  padding: 10px;
+  border: 1px solid red;
+  border-radius: 5px;
+  margin-bottom: 20px;
 }
 
 /* Styles de l'ID utilisateur */

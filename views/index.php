@@ -95,6 +95,14 @@ try {
         <!-- Inclusion de l'en-tête -->
         <?php include '../includes/header.php'; ?>
 
+        <!-- Affichage des messages d'erreur -->
+        <?php if (isset($_SESSION['error_message'])): ?>
+        <div class="error-message">
+            <p><?= htmlspecialchars($_SESSION['error_message']) ?></p>
+        </div>
+        <?php unset($_SESSION['error_message']); ?>
+        <?php endif; ?>
+
         <main class="main-content">
             <!-- Section de bienvenue -->
             <section class="welcome">
@@ -142,13 +150,6 @@ try {
                 <?php if (count($services) > 0): ?>
                 <div class="service-list">
                     <?php foreach ($services as $service): ?>
-                    <?php
-                                $sql = "SELECT AVG(rating) AS average_rating FROM reviews WHERE service_id = ?";
-                                $stmt = $conn->prepare($sql);
-                                $stmt->execute([$service['id']]);
-                                $review = $stmt->fetch(PDO::FETCH_ASSOC);
-                                $average_rating = $review['average_rating'] ? round($review['average_rating'], 1) : 'Pas de note';
-                            ?>
                     <div class="service-card">
                         <h4><strong><?= htmlspecialchars($service['title']) ?></strong></h4>
                         <p><?= htmlspecialchars($service['description']) ?></p>
@@ -159,11 +160,9 @@ try {
                         <small><strong>Localisation :</strong> <?= htmlspecialchars($service['location']) ?></small><br>
                         <small><strong>Coût :</strong> <?= htmlspecialchars($service['points_cost']) ?>
                             points</small><br>
-                        <small><strong>Note moyenne :</strong> <?= $average_rating ?>/5</small><br><br>
 
                         <?php if ($user): ?>
-                        <a href="../controllers/request_service.php?id=<?= $service['id'] ?>" class="btn">Demander
-                            ce
+                        <a href="../controllers/request_service.php?id=<?= $service['id'] ?>" class="btn">Demander ce
                             service</a>
                         <a href="leave_review.php?id=<?= $service['id'] ?>" class="btn-evaluate">Évaluer</a>
                         <?php else: ?>

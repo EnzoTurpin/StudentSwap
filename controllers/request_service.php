@@ -23,17 +23,23 @@ try {
 
     // Vérification de l'existence du service
     if (!$service) {
-        die("Le service n'existe pas.");
+        $_SESSION['error_message'] = "Le service n'existe pas.";
+        header("Location: ../views/index.php");
+        exit;
     }
 
     // Empêcher l'utilisateur de demander son propre service
     if ($service['provider_id'] == $user_id) {
-        die("Vous ne pouvez pas demander votre propre service.");
+        $_SESSION['error_message'] = "Vous ne pouvez pas demander votre propre service.";
+        header("Location: ../views/index.php");
+        exit;
     }
 
     // Vérifier si le service est disponible
     if ($service['status'] != 'available') {
-        die("Ce service a déjà été demandé ou n'est plus disponible.");
+        $_SESSION['error_message'] = "Ce service a déjà été demandé ou n'est plus disponible.";
+        header("Location: ../views/index.php");
+        exit;
     }
 
     // Récupération des informations de l'utilisateur connecté
@@ -44,7 +50,9 @@ try {
 
     // Vérifier si l'utilisateur a suffisamment de points pour demander le service
     if ($user['points'] < $service['points_cost']) {
-        die("Vous n'avez pas suffisamment de points pour demander ce service.");
+        $_SESSION['error_message'] = "Vous n'avez pas suffisamment de points pour demander ce service.";
+        header("Location: ../views/index.php");
+        exit;
     }
 
     // Début de la transaction pour la demande de service
@@ -69,41 +77,16 @@ try {
     // Valider la transaction
     $conn->commit();
 
-    $message = "Service demandé avec succès. Le fournisseur du service sera notifié.";
+    // Définir un message de succès
+    $_SESSION['success_message'] = "Service demandé avec succès. Le fournisseur du service sera notifié.";
+    header("Location: ../views/index.php");
+    exit;
+
 } catch (PDOException $e) {
     // Annulation de la transaction en cas d'erreur
     $conn->rollBack();
-    die("Erreur lors de la demande du service : " . $e->getMessage());
+    $_SESSION['error_message'] = "Erreur lors de la demande du service : " . $e->getMessage();
+    header("Location: ../views/index.php");
+    exit;
 }
 ?>
-
-<!DOCTYPE html>
-<html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demander un service - StudentSwap</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-
-<body>
-    <div class="wrapper">
-        <!-- Inclusion de l'en-tête -->
-        <?php include '../includes/header.php'; ?>
-
-        <!-- Confirmation de la demande de service -->
-        <main class="main-content">
-            <section class="request-confirmation">
-                <h2>Demande de service</h2>
-                <p><?= htmlspecialchars($message) ?></p>
-                <a href="../views/index.php" class="button">Retour à l'accueil</a>
-            </section>
-        </main>
-
-        <!-- Inclusion du pied de page -->
-        <?php include '../includes/footer.php'; ?>
-    </div>
-</body>
-
-</html>
