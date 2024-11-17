@@ -14,7 +14,10 @@ $action = $_POST['action'];
 
 try {
     // Vérification de l'existence de la demande de service
-    $sql = "SELECT * FROM service_requests WHERE service_id = ? AND status = 'requested'";
+    $sql = "SELECT sr.*, s.points_cost, s.user_id AS provider_id 
+            FROM service_requests sr
+            JOIN services s ON sr.service_id = s.id
+            WHERE sr.service_id = ? AND sr.status = 'requested'";
     $stmt = $conn->prepare($sql);
     $stmt->execute([$service_id]);
     $service_request = $stmt->fetch();
@@ -23,6 +26,9 @@ try {
     if (!$service_request) {
         die("La demande de service n'existe pas ou a déjà été traitée.");
     }
+
+    $points_cost = $service_request['points_cost'];
+    $provider_id = $service_request['provider_id'];
 
     if ($action === 'accept') {
         // Accepter la demande et mettre à jour le statut à "accepted"
@@ -35,7 +41,12 @@ try {
         $stmt = $conn->prepare($sql);
         $stmt->execute([$service_id]);
 
-        $message = "Demande acceptée avec succès.";
+        // Ajouter les points au fournisseur du service
+        $sql = "UPDATE users SET points = points + ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$points_cost, $provider_id]);
+
+        $message = "Demande acceptée avec succès. Points ajoutés au fournisseur.";
     } elseif ($action === 'reject') {
         // Rejeter la demande et remettre le service à "available"
         $sql = "UPDATE service_requests SET status = 'rejected' WHERE service_id = ?";
