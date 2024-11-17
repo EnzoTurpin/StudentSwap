@@ -83,7 +83,18 @@ try {
     $stmt->execute([$user_id]);
     $requested_by_user_services = $stmt->fetchAll();
 
+    // Créer un objet DateTime à partir de la date 'accepted_at'
+    $date = new DateTime($service['accepted_at']);
+    $formatted_date = $date->format('d F Y à H\hi'); // Exemple : "17 Novembre 2024, 23h56"
 
+    // Convertir le mois en français
+    $mois_francais = [
+    'January' => 'Janvier', 'February' => 'Février', 'March' => 'Mars', 'April' => 'Avril',
+    'May' => 'Mai', 'June' => 'Juin', 'July' => 'Juillet', 'August' => 'Août',
+    'September' => 'Septembre', 'October' => 'Octobre', 'November' => 'Novembre', 'December' => 'Décembre'
+    ];
+    
+    $formatted_date = str_replace(array_keys($mois_francais), array_values($mois_francais), $formatted_date);
 
     // Mise à jour des informations du profil
     if ($profile_user_id == $user_id && $_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -242,8 +253,8 @@ try {
                             <p><strong>Demandé par :</strong> <?= htmlspecialchars($service['requester']) ?></p>
                             <p class="points"><strong>Coût :</strong> <?= htmlspecialchars($service['points_cost']) ?>
                                 points</p>
-                            <p class="date"><strong>Date d'acceptation :</strong>
-                                <?= htmlspecialchars($service['accepted_at']) ?></p>
+                            <p class="date"><strong>Date d'acceptation : </strong>Le
+                                <?= htmlspecialchars($formatted_date) ?></p>
                         </div>
                         <?php endforeach; ?>
                         <?php else: ?>
