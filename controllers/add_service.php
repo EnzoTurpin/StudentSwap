@@ -40,9 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt = $conn->prepare($sql);
 
     // Vérification de la réussite de l'insertion
-    $message = $stmt->execute([$user_id, $title, $description, $category_id, $location, $points_cost])
-        ? "Service ajouté avec succès."
-        : "Erreur lors de l'ajout du service.";
+    if ($stmt->execute([$user_id, $title, $description, $category_id, $location, $points_cost])) {
+        // Redirection vers l'index après ajout réussi
+        header("Location: ../views/index.php");
+        exit;
+    } else {
+        $message = "Erreur lors de l'ajout du service.";
+    }
 }
 ?>
 

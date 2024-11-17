@@ -81,9 +81,37 @@ header {
   background-color: var(--color-button-hover);
 }
 
+.password-container {
+  position: relative;
+  width: 100%;
+}
+
+.password-container input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-container .icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+svg {
+  vertical-align: middle;
+}
+
+.icon img {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
 /* Styles du conteneur de formulaire */
 .form-container {
-  max-width: 400px;
+  max-width: 600px; /* Augmentez la largeur du conteneur */
   margin: 40px auto;
   padding: 30px;
   background-color: var(--color-background);
@@ -116,6 +144,11 @@ header {
   outline: none;
   border-color: var(--color-header-background);
   resize: none;
+}
+
+.form-container input[class="login-input"] {
+  width: 375px; /* Ajustez cette valeur selon vos besoins */
+  max-width: 100%; /* Pour s'assurer qu'il ne dépasse pas le conteneur sur les petits écrans */
 }
 
 .form-container input {

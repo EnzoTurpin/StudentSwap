@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../assets/css/style.css">
     <title>Connexion - StudentSwap</title>
+    <script src="../assets/js/validation.js"></script>
 </head>
 
 <body>
@@ -68,9 +69,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
 
             <!-- Formulaire de saisie des identifiants -->
-            <form method="POST">
+            <form method="POST" id="login-form">
                 <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Mot de passe" required>
+
+                <!-- Champ pour le mot de passe avec icône pour afficher/masquer -->
+                <div class="password-container">
+                    <input type="password" id="password" name="password" class="login-input" placeholder="Mot de passe"
+                        required>
+                    <span id="toggle-new-password" class="icon">
+                        <img id="show-new-password-icon" src="../assets/svg/show-password.svg"
+                            alt="Montrer le mot de passe">
+                        <img id="hide-new-password-icon" src="../assets/svg/hide-password.svg"
+                            alt="Masquer le mot de passe" style="display: none;">
+                    </span>
+                </div>
+
                 <button type="submit">Se connecter</button>
             </form>
 

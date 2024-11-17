@@ -6,33 +6,37 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $password = $_POST['password'];
 
-    // Vérifier si l'email ou le nom d'utilisateur est déjà utilisé
-    $check_sql = "SELECT * FROM users WHERE email = ? OR username = ?";
-    $stmt = $conn->prepare($check_sql);
-    $stmt->execute([$email, $username]);
-    $existingUser = $stmt->fetch();
-
-    // Afficher un message d'erreur si l'utilisateur existe déjà
-    if ($existingUser) {
-        echo "L'email ou le nom d'utilisateur est déjà utilisé.";
+    // Vérifier la sécurité du mot de passe
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $password)) {
+        $error_message = "Le mot de passe doit contenir au moins 8 caractères, avec 1 majuscule, 1 minuscule, 1 chiffre, et 1 caractère spécial.";
     } else {
-        // Insérer le nouvel utilisateur dans la base de données avec 10 points par défaut
-        $sql = "INSERT INTO users (username, email, password, points) VALUES (?, ?, ?, 10)";
-        $stmt = $conn->prepare($sql);
+        // Hacher le mot de passe sécurisé
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        // Vérifier si l'insertion s'est déroulée avec succès
-        if ($stmt->execute([$username, $email, $password])) {
-            // Rediriger l'utilisateur vers la page de connexion après inscription réussie
-            header("Location: login.php");
-            exit;
+        // Vérifier si l'email ou le nom d'utilisateur est déjà utilisé
+        $check_sql = "SELECT * FROM users WHERE email = ? OR username = ?";
+        $stmt = $conn->prepare($check_sql);
+        $stmt->execute([$email, $username]);
+        $existingUser = $stmt->fetch();
+
+        if ($existingUser) {
+            $error_message = "L'email ou le nom d'utilisateur est déjà utilisé.";
         } else {
-            // Afficher un message d'erreur en cas de problème lors de l'inscription
-            echo "Erreur lors de l'inscription. Veuillez réessayer.";
+            // Insérer le nouvel utilisateur dans la base de données
+            $sql = "INSERT INTO users (username, email, password, points) VALUES (?, ?, ?, 10)";
+            $stmt = $conn->prepare($sql);
+            if ($stmt->execute([$username, $email, $hashed_password])) {
+                header("Location: login.php");
+                exit;
+            } else {
+                $error_message = "Erreur lors de l'inscription. Veuillez réessayer.";
+            }
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -43,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription - StudentSwap</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/validation.js"></script>
 </head>
 
 <body>
@@ -54,10 +59,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- Formulaire d'inscription -->
         <div class="form-container">
             <h2>Créer un compte</h2>
-            <form method="POST">
+            <form method="POST" id="login-form">
                 <input type="text" name="username" placeholder="Nom d'utilisateur" required>
                 <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Mot de passe" required>
+
+                <!-- Champ pour le mot de passe avec icône pour afficher/masquer -->
+                <div class="password-container">
+                    <input type="password" id="new_password" name="new_password" placeholder="Nouveau mot de passe"
+                        required>
+                    <span id="toggle-new-password" class="icon">
+                        <img id="show-new-password-icon" src="../assets/svg/show-password.svg"
+                            alt="Montrer le mot de passe">
+                        <img id="hide-new-password-icon" src="../assets/svg/hide-password.svg"
+                            alt="Masquer le mot de passe" style="display: none;">
+                    </span>
+                </div>
+
                 <button type="submit">S'inscrire</button>
             </form>
 
@@ -66,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <p>Déjà inscrit ? <a href="login.php">Se connecter</a></p>
             </div>
         </div>
+
 
         <!-- Inclusion du pied de page -->
         <?php include '../includes/footer.php'; ?>
