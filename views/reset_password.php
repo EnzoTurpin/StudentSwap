@@ -86,10 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="password" id="new_password" name="new_password" placeholder="Nouveau mot de passe"
                         required>
                     <span id="toggle-new-password" class="icon">
-                        <!-- Icône pour montrer le mot de passe (fichier SVG externe) -->
+                        <!-- Icône pour montrer le mot de passe -->
                         <img id="show-new-password-icon" src="../assets/svg/show-password.svg"
                             alt="Montrer le mot de passe">
-                        <!-- Icône pour cacher le mot de passe (fichier SVG externe) -->
+                        <!-- Icône pour cacher le mot de passe -->
                         <img id="hide-new-password-icon" src="../assets/svg/hide-password.svg"
                             alt="Masquer le mot de passe" style="display: none;">
                     </span>
@@ -100,10 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="password" id="confirm_password" name="confirm_password"
                         placeholder="Confirmer le mot de passe" required>
                     <span id="toggle-confirm-password" class="icon">
-                        <!-- Icône pour montrer le mot de passe (fichier SVG externe) -->
+                        <!-- Icône pour montrer le mot de passe -->
                         <img id="show-confirm-password-icon" src="../assets/svg/show-password.svg"
                             alt="Montrer le mot de passe">
-                        <!-- Icône pour cacher le mot de passe (fichier SVG externe) -->
+                        <!-- Icône pour cacher le mot de passe -->
                         <img id="hide-confirm-password-icon" src="../assets/svg/hide-password.svg"
                             alt="Masquer le mot de passe" style="display: none;">
                     </span>

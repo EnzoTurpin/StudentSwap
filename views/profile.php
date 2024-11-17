@@ -186,9 +186,9 @@ try {
                         placeholder="Email">
                     <input type="password" name="password" placeholder="Nouveau mot de passe">
                     <div class="custom-file-input">
-                        <label for="profile_picture" class="file-label">📁 Choisir un fichier</label>
+                        <label for="profile_picture" class="file-label">📁 Choisir une photo</label>
                         <input type="file" id="profile_picture" name="profile_picture" accept=".jpg,.jpeg,.png,.gif">
-                        <span class="file-name">Aucun fichier sélectionné</span>
+                        <span class="file-name">Aucune photo sélectionnée</span>
                     </div>
                     <button type="submit" class="button">Mettre à jour</button>
                 </form>
