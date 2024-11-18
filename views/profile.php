@@ -83,18 +83,28 @@ try {
     $stmt->execute([$user_id]);
     $requested_by_user_services = $stmt->fetchAll();
 
-    // Créer un objet DateTime à partir de la date 'accepted_at'
-    $date = new DateTime($service['accepted_at']);
-    $formatted_date = $date->format('d F Y à H\hi'); // Exemple : "17 Novembre 2024, 23h56"
-
-    // Convertir le mois en français
+ 
+    // Formater les dates pour les services acceptés
     $mois_francais = [
-    'January' => 'Janvier', 'February' => 'Février', 'March' => 'Mars', 'April' => 'Avril',
-    'May' => 'Mai', 'June' => 'Juin', 'July' => 'Juillet', 'August' => 'Août',
-    'September' => 'Septembre', 'October' => 'Octobre', 'November' => 'Novembre', 'December' => 'Décembre'
+        'January' => 'Janvier', 'February' => 'Février', 'March' => 'Mars', 'April' => 'Avril',
+        'May' => 'Mai', 'June' => 'Juin', 'July' => 'Juillet', 'August' => 'Août',
+        'September' => 'Septembre', 'October' => 'Octobre', 'November' => 'Novembre', 'December' => 'Décembre'
     ];
+
+    foreach ($accepted_services as &$service) {
+        if (!empty($service['accepted_at'])) {
+        
+            // Créer un objet DateTime à partir de 'accepted_at'
+            $date = new DateTime($service['accepted_at']);
+            $formatted_date = $date->format('d F Y à H\hi');
     
-    $formatted_date = str_replace(array_keys($mois_francais), array_values($mois_francais), $formatted_date);
+           // Traduire le mois en français
+           $formatted_date = str_replace(array_keys($mois_francais), array_values($mois_francais), $formatted_date);
+           $service['formatted_date'] = $formatted_date;
+        } else {
+            $service['formatted_date'] = "Date inconnue";
+        }
+    }
 
     // Mise à jour des informations du profil
     if ($profile_user_id == $user_id && $_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -253,8 +263,8 @@ try {
                             <p><strong>Demandé par :</strong> <?= htmlspecialchars($service['requester']) ?></p>
                             <p class="points"><strong>Coût :</strong> <?= htmlspecialchars($service['points_cost']) ?>
                                 points</p>
-                            <p class="date"><strong>Date d'acceptation : </strong>Le
-                                <?= htmlspecialchars($formatted_date) ?></p>
+                            <p class="date"><strong>Date d'acceptation :</strong> Le
+                                <?= htmlspecialchars($service['formatted_date']) ?></p>
                         </div>
                         <?php endforeach; ?>
                         <?php else: ?>
