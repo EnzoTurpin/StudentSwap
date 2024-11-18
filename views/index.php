@@ -10,18 +10,25 @@ try {
 
     // Si l'utilisateur est connecté, récupérer ses informations depuis la base de données
     if ($user_id) {
-        $sql = "SELECT username, email, COALESCE(points, 10) AS points, profile_picture FROM users WHERE id = ?";
+        $sql = "SELECT username, email, COALESCE(points, 10) AS points, profile_picture, is_admin FROM users WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$user_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // Définir la photo de profil par défaut si elle n'est pas définie
-        $profile_picture = $user['profile_picture'] ?? 'default-picture.png';
+        $profile_picture = $user['profile_picture'] ?? '../assets/img/default-picture.png';
 
         // Si les points ne sont pas présents, les initialiser à 10
         if (!array_key_exists('points', $user)) {
             $user['points'] = 10;
         }
+    }
+    
+    // Vérifier si l'utilisateur est administrateur
+    if (isset($user['is_admin']) && $user['is_admin'] == 1) {
+    } else {
+        // Afficher le nombre de points pour les autres utilisateurs
+        echo htmlspecialchars($user['points']) . ' points';
     }
 
     // Récupérer les catégories et les villes
@@ -95,6 +102,22 @@ try {
         <!-- Inclusion de l'en-tête -->
         <?php include '../includes/header.php'; ?>
 
+        <!-- Affichage des messages de succès -->
+        <?php if (isset($_SESSION['success_message'])): ?>
+        <div class="success-message">
+            <p><?= htmlspecialchars($_SESSION['success_message']) ?></p>
+        </div>
+        <?php unset($_SESSION['success_message']); ?>
+        <?php endif; ?>
+
+        <!-- Affichage des messages d'erreur -->
+        <?php if (isset($_SESSION['error_message'])): ?>
+        <div class="error-message">
+            <p><?= htmlspecialchars($_SESSION['error_message']) ?></p>
+        </div>
+        <?php unset($_SESSION['error_message']); ?>
+        <?php endif; ?>
+
         <!-- Affichage des messages d'erreur -->
         <?php if (isset($_SESSION['error_message'])): ?>
         <div class="error-message">
@@ -108,7 +131,13 @@ try {
             <section class="welcome">
                 <?php if ($user): ?>
                 <h2>Bienvenue, <?= htmlspecialchars($user['username']) ?>!</h2>
-                <p>Solde de points : <strong><?= htmlspecialchars($user['points']) ?></strong> points</p>
+                <p>Solde de points :
+                    <?php if (isset($user['is_admin']) && $user['is_admin'] == 1): ?>
+                    <img src="../assets/svg/infinite.svg" alt="Points illimités" class="infinite-icon">
+                    <?php else: ?>
+                    <strong><?= htmlspecialchars($user['points']) ?></strong> points
+                    <?php endif; ?>
+                </p>
                 <?php else: ?>
                 <h2>Bienvenue sur StudentSwap !</h2>
                 <p>Connectez-vous pour accéder à toutes les fonctionnalités.</p>
@@ -158,8 +187,14 @@ try {
                         <small><strong>Catégorie :</strong>
                             <?= htmlspecialchars($service['category_name']) ?></small><br>
                         <small><strong>Localisation :</strong> <?= htmlspecialchars($service['location']) ?></small><br>
-                        <small><strong>Coût :</strong> <?= htmlspecialchars($service['points_cost']) ?>
-                            points</small><br>
+                        <small><strong>Coût :</strong>
+                            <?php if ($service['points_cost'] == 0): ?>
+                            <span class="free-service">GRATUIT</span>
+                            <?php else: ?>
+                            <?= htmlspecialchars($service['points_cost']) ?> points
+                            <?php endif; ?>
+                        </small><br><br>
+
 
                         <?php if ($user): ?>
                         <a href="../controllers/request_service.php?id=<?= $service['id'] ?>" class="btn">Demander ce

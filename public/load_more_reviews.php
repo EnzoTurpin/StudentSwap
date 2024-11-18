@@ -45,4 +45,3 @@ try {
     // Gestion des erreurs lors de l'exécution de la requête
     echo "Erreur lors de la récupération des avis : " . $e->getMessage();
 }
-?>

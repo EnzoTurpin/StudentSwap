@@ -25,13 +25,19 @@ try {
         die("L'utilisateur n'existe pas.");
     }
 
+    // Vérifier si l'utilisateur est administrateur
+    if (isset($user['is_admin']) && $user['is_admin'] == 1) {
+    } else {
+        // Afficher le nombre de points pour les autres utilisateurs
+        echo htmlspecialchars($user['points']) . ' points';
+    }
+
     // Déterminer l'image de profil à afficher
     $profile_picture_path = "../uploads/profile_pictures/" . $user['profile_picture'];
     $default_picture = "../assets/img/default-picture.png";
 
     // Utiliser l'image par défaut si aucune photo n'est définie ou si le fichier n'existe pas
     if (empty($user['profile_picture']) || !file_exists($profile_picture_path)) {
-        $profile_picture = $default_picture;
     } else {
         $profile_picture = $profile_picture_path;
     }
@@ -62,6 +68,18 @@ try {
     $review_data = $stmt->fetch();
     $average_rating = $review_data['average_rating'] ? round($review_data['average_rating'], 1) : 'Pas encore évalué';
     $total_reviews = $review_data['total_reviews'] ?? 0;
+
+    // Récupérer les 3 premiers avis pour l'utilisateur
+    $sql = "SELECT reviews.*, users.username AS reviewer_name 
+            FROM reviews
+            JOIN users ON reviews.user_id = users.id
+            JOIN services ON reviews.service_id = services.id
+            WHERE services.user_id = ?
+            ORDER BY reviews.created_at DESC
+            LIMIT 3";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$profile_user_id]);
+    $reviews = $stmt->fetchAll();
 
     // Récupérer les services acceptés (status 'accepted')
     $sql = "SELECT sr.*, s.title, s.points_cost, u.username AS requester
@@ -187,7 +205,13 @@ try {
                     class="profile-picture" onerror="this.onerror=null; this.src='../assets/img/default-picture.png';">
                 <p><strong>Nom d'utilisateur :</strong> <?= htmlspecialchars($user['username']) ?></p>
                 <p><strong>Email :</strong> <?= htmlspecialchars($user['email']) ?></p>
-                <p><strong>Solde de points :</strong> <?= htmlspecialchars($user['points']) ?> points</p>
+                <p><strong>Solde de points :</strong>
+                    <?php if (isset($user['is_admin']) && $user['is_admin'] == 1): ?>
+                    <img src="../assets/svg/infinite.svg" alt="Points illimités" class="infinite-icon">
+                    <?php else: ?>
+                    <strong><?= htmlspecialchars($user['points']) ?></strong> points
+                    <?php endif; ?>
+                </p>
                 <p><strong>Évaluation moyenne :</strong> <?= $average_rating ?> / 5 (<?= $total_reviews ?> avis)</p>
 
                 <?php if ($profile_user_id == $user_id): ?>
@@ -208,7 +232,7 @@ try {
             <!-- Fenêtre "Mes services" -->
             <div class="windows-container">
                 <div class="window">
-                    <h3>Mes services</h3>
+                    <h3>Mes services:</h3>
                     <div class="window-content">
                         <?php if (count($services) > 0): ?>
                         <?php foreach ($services as $service): ?>
@@ -230,7 +254,7 @@ try {
 
                 <!-- Fenêtre "Demandes en attente" -->
                 <div class="window">
-                    <h3>Demandes en attente</h3>
+                    <h3>Demandes en attente:</h3>
                     <div class="window-content">
                         <?php if (count($requested_services) > 0): ?>
                         <?php foreach ($requested_services as $service): ?>
@@ -254,15 +278,21 @@ try {
 
                 <!-- Section "Services acceptés" -->
                 <div class="window">
-                    <h3>Services acceptés</h3>
+                    <h3>Services acceptés:</h3>
                     <div class="window-content">
                         <?php if (count($accepted_services) > 0): ?>
                         <?php foreach ($accepted_services as $service): ?>
                         <div class="accepted-service-card">
                             <h4><?= htmlspecialchars($service['title']) ?></h4>
                             <p><strong>Demandé par :</strong> <?= htmlspecialchars($service['requester']) ?></p>
-                            <p class="points"><strong>Coût :</strong> <?= htmlspecialchars($service['points_cost']) ?>
-                                points</p>
+                            <p class="points"><strong>Coût :</strong>
+                                <?php if ($service['points_cost'] == 0): ?>
+                                <span class="free-service">GRATUIT</span>
+                                <?php else: ?>
+                                <?= htmlspecialchars($service['points_cost']) ?> points
+                                <?php endif; ?>
+                            </p>
+
                             <p class="date"><strong>Date d'acceptation :</strong> Le
                                 <?= htmlspecialchars($service['formatted_date']) ?></p>
                         </div>
@@ -275,7 +305,7 @@ try {
 
                 <!-- Fenêtre "Mes demandes de services" -->
                 <div class="window">
-                    <h3>Mes demandes de services</h3>
+                    <h3>Mes demandes de services:</h3>
                     <div class="window-content">
                         <?php if (count($requested_by_user_services) > 0): ?>
                         <?php foreach ($requested_by_user_services as $service): ?>
@@ -296,13 +326,39 @@ try {
                     </div>
                 </div>
 
-
+                <!-- Section des avis reçus -->
+                <div class="window">
+                    <div class="reviews-container">
+                        <h2>Avis reçus:</h2>
+                        <div class="window-content">
+                            <section class="user-reviews">
+                                <?php if (!empty($reviews)): ?>
+                                <div class="review-list">
+                                    <?php foreach ($reviews as $review): ?>
+                                    <div class="review-card">
+                                        <h4>Évalué par : <?= htmlspecialchars($review['reviewer_name']) ?></h4>
+                                        <p>Note : <?= str_repeat('⭐', $review['rating']) ?></p>
+                                        <p>Commentaire : <?= htmlspecialchars($review['comment']) ?></p>
+                                        <small>Posté le : <?= htmlspecialchars($review['created_at']) ?></small>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <button id="load-more-btn" class="button"
+                                    data-user-id="<?= htmlspecialchars($profile_user_id) ?>">Afficher plus
+                                    d'avis</button>
+                                <?php else: ?>
+                                <p>Aucun avis pour le moment.</p>
+                                <?php endif; ?>
+                            </section>
+                        </div>
+                    </div>
+                </div>
             </div>
-
         </main>
 
         <?php include '../includes/footer.php'; ?>
     </div>
+    <script src="../assets/js/load_more_reviews.js"></script>
 </body>
 
 </html>

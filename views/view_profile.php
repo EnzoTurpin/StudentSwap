@@ -7,15 +7,13 @@ $user_id = $_SESSION['user_id'];
 $logged_in_user_picture = 'default-picture.png';
 
 // Récupérer les informations de l'utilisateur connecté
-$sql = "SELECT username, email, points, profile_picture FROM users WHERE id = ?";
+$sql = "SELECT id, username, email, points, profile_picture, is_admin FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->execute([$user_id]);
 $logged_in_user = $stmt->fetch();
 
 // Déterminer la photo de profil de l'utilisateur connecté
-if ($logged_in_user && !empty($logged_in_user['profile_picture'])) {
-    $logged_in_user_picture = $logged_in_user['profile_picture'];
-}
+$logged_in_user_picture = $logged_in_user['profile_picture'] ?? 'default-picture.png';
 
 // Récupérer l'ID de l'utilisateur dont on veut afficher le profil
 $profile_user_id = $_GET['id'] ?? null;
@@ -30,15 +28,22 @@ $user_services = [];
 
 try {
     // Récupérer les informations de l'utilisateur à afficher
-    $sql = "SELECT id, username, email, points, profile_picture FROM users WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([$profile_user_id]);
-    $user = $stmt->fetch();
+$sql = "SELECT id, username, email, points, profile_picture, is_admin FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->execute([$profile_user_id]);
+$user = $stmt->fetch();
 
-    // Vérifier si l'utilisateur existe
-    if (!$user) {
-        die("L'utilisateur n'existe pas.");
-    }
+// Vérifier si l'utilisateur existe
+if (!$user) {
+    die("L'utilisateur n'existe pas.");
+}
+
+// Nouvelle vérification : rediriger vers "access_denied.php" uniquement si
+// l'utilisateur connecté n'est pas administrateur OU s'il essaie d'accéder à un profil administrateur autre que le sien
+if ($user['is_admin'] == 1 && $user_id != $profile_user_id) {
+    header("Location: access_denied.php");
+    exit;
+}
 
     // Définir la photo de profil de l'utilisateur à afficher
     $profile_picture = $user['profile_picture'] ?? 'default-picture.png';
@@ -78,6 +83,21 @@ try {
 } catch (PDOException $e) {
     $message = "Erreur lors de la récupération des données : " . $e->getMessage();
 }
+
+function translateStatus($status) {
+    switch ($status) {
+        case 'available':
+            return 'Disponible';
+        case 'requested':
+            return 'Demandé';
+        case 'accepted':
+            return 'Accepté';
+        case 'rejected':
+            return 'Refusé';
+        default:
+            return 'Inconnu';
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -101,58 +121,84 @@ try {
                 <img src="<?= $profile_picture_path ?>" alt="Photo de profil" class="profile-picture">
                 <p><strong>Nom d'utilisateur :</strong> <?= htmlspecialchars($user['username']) ?></p>
                 <p><strong>Email :</strong> <?= htmlspecialchars($user['email']) ?></p>
-                <p><strong>Solde de points :</strong> <?= htmlspecialchars($user['points']) ?> points</p>
+                <p><strong>Solde de points :</strong>
+                    <?php if (isset($user['is_admin']) && $user['is_admin'] == 1): ?>
+                    <img src="../assets/svg/infinite.svg" alt="Points illimités" class="infinite-icon">
+                    <?php else: ?>
+                    <strong><?= htmlspecialchars($user['points']) ?></strong> points
+                    <?php endif; ?>
+                </p>
                 <p><strong>Évaluation moyenne :</strong> <?= $average_rating ?> / 5 (<?= $total_reviews ?> avis)</p>
             </section>
 
-            <div class="profile-container">
-                <!-- Section des services proposés -->
-                <section class="user-services">
-                    <h2>Services proposés par <?= htmlspecialchars($user['username']) ?></h2>
-                    <div class="service-list">
-                        <?php if (!empty($user_services)): ?>
-                        <?php foreach ($user_services as $service): ?>
-                        <div class="service-card">
-                            <h4><?= htmlspecialchars($service['title']) ?></h4>
-                            <p><?= htmlspecialchars($service['description']) ?></p>
-                            <small><strong>Lieu :</strong> <?= htmlspecialchars($service['location']) ?></small><br>
-                            <small><strong>Coût :</strong> <?= htmlspecialchars($service['points_cost']) ?>
-                                points</small><br>
-                            <small><strong>Statut :</strong> <?= htmlspecialchars($service['status']) ?></small>
+            <!-- Section des services proposés -->
+            <div class="windows-container">
+                <div class="window">
+                    <div class="profile-container">
+                        <h2>Services proposés par <?= htmlspecialchars($user['username']) ?></h2>
+                        <div class="window-content">
+                            <section class="user-services">
+                                <div class="service-list">
+                                    <?php if (!empty($user_services)): ?>
+                                    <?php foreach ($user_services as $service): ?>
+                                    <div class="service-card">
+                                        <h4><?= htmlspecialchars($service['title']) ?></h4>
+                                        <p><?= htmlspecialchars($service['description']) ?></p>
+                                        <small><strong>Lieu :</strong>
+                                            <?= htmlspecialchars($service['location']) ?></small><br>
+                                        <small><strong>Coût :</strong>
+                                            <?php if ($service['points_cost'] == 0): ?>
+                                            <span class="free-service">GRATUIT</span>
+                                            <?php else: ?>
+                                            <?= htmlspecialchars($service['points_cost']) ?> points
+                                            <?php endif; ?>
+                                        </small><br>
+                                        <small><strong>Statut :</strong>
+                                            <?= htmlspecialchars(translateStatus($service['status'])) ?></small>
+                                    </div>
+                                    <?php endforeach; ?>
+                                    <?php else: ?>
+                                    <p>Aucun service proposé par cet utilisateur.</p>
+                                    <?php endif; ?>
+                                </div>
+                            </section>
                         </div>
-                        <?php endforeach; ?>
-                        <?php else: ?>
-                        <p>Aucun service proposé par cet utilisateur.</p>
-                        <?php endif; ?>
                     </div>
-                </section>
+                </div>
 
                 <!-- Section des avis reçus -->
-                <div class="reviews-container">
-                    <h2>Avis reçus</h2>
-                    <section class="user-reviews">
-                        <?php if (!empty($reviews)): ?>
-                        <div class="review-list">
-                            <?php foreach ($reviews as $review): ?>
-                            <div class="review-card">
-                                <h4>Évalué par : <?= htmlspecialchars($review['reviewer_name']) ?></h4>
-                                <p>Note : <?= str_repeat('⭐', $review['rating']) ?></p>
-                                <p>Commentaire : <?= htmlspecialchars($review['comment']) ?></p>
-                                <small>Posté le : <?= htmlspecialchars($review['created_at']) ?></small>
-                            </div>
-                            <?php endforeach; ?>
+                <div class="window">
+                    <div class="reviews-container">
+                        <h2>Avis reçus</h2>
+                        <div class="window-content">
+                            <section class="user-reviews">
+                                <?php if (!empty($reviews)): ?>
+                                <div class="review-list">
+                                    <?php foreach ($reviews as $review): ?>
+                                    <div class="review-card">
+                                        <h4>Évalué par : <?= htmlspecialchars($review['reviewer_name']) ?></h4>
+                                        <p>Note : <?= str_repeat('⭐', $review['rating']) ?></p>
+                                        <p>Commentaire : <?= htmlspecialchars($review['comment']) ?></p>
+                                        <small>Posté le : <?= htmlspecialchars($review['created_at']) ?></small>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <button id="load-more-btn" class="button"
+                                    data-user-id="<?= htmlspecialchars($profile_user_id) ?>">Afficher plus
+                                    d'avis</button>
+                                <?php else: ?>
+                                <p>Aucun avis pour le moment.</p>
+                                <?php endif; ?>
+                            </section>
                         </div>
-                        <button id="load-more-btn" class="button">Afficher plus d'avis</button>
-                        <?php else: ?>
-                        <p>Aucun avis pour le moment.</p>
-                        <?php endif; ?>
-                    </section>
+                    </div>
                 </div>
             </div>
         </main>
 
         <?php include '../includes/footer.php'; ?>
     </div>
+    <script src="../assets/js/load_more_reviews.js"></script>
 </body>
 
 </html>

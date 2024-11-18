@@ -239,6 +239,13 @@ svg {
   color: var(--color-text);
 }
 
+.infinite-icon {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  fill: #4caf50; /* Couleur de l'icône */
+}
+
 /* Styles de la section des services */
 .services {
   max-width: 800px;
@@ -276,6 +283,11 @@ svg {
   color: var(--color-text);
 }
 
+.free-service {
+  color: #4caf50;
+  font-weight: bold;
+}
+
 /* Styles des boutons */
 .btn,
 .btn-evaluate {
@@ -307,13 +319,22 @@ svg {
   background-color: #a5e6ba;
 }
 
+.success-message {
+  color: #155724;
+  background-color: #d4edda;
+  padding: 10px;
+  border: 1px solid #c3e6cb;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
 .error-message {
   color: red;
   background-color: #ffe6e6;
   padding: 10px;
   border: 1px solid red;
-  border-radius: 5px;
   margin-bottom: 20px;
+  text-align: center;
 }
 
 /* Styles de l'ID utilisateur */
@@ -549,10 +570,8 @@ footer {
 .profile-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
   justify-content: space-between;
   max-width: 1200px;
-  margin: 20px auto;
   align-items: flex-start;
 }
 
@@ -875,12 +894,6 @@ footer {
   font-size: 0.9em;
 }
 
-.review-card:hover {
-  transform: scale(1.02);
-  transition: transform 0.2s ease-in-out;
-  border-color: var(--color-review-border-hover);
-}
-
 /* Bouton de suppression */
 .button-delete {
   padding: 10px;
@@ -1087,10 +1100,6 @@ footer {
   }
 
   .windows-container {
-    gap: 40px;
-  }
-
-  .profile-container {
     gap: 40px;
   }
 }

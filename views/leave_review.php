@@ -41,18 +41,31 @@ try {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $rating = $_POST['rating'];
         $comment = $_POST['comment'];
-
+    
         // Valider la note
         if ($rating < 1 || $rating > 5) {
-            $message = "La note doit être entre 1 et 5.";
+            $_SESSION['error_message'] = "La note doit être entre 1 et 5.";
+            header("Location: ../views/index.php");
+            exit;
         } else {
-            // Insérer l'évaluation dans la base de données
-            $sql = "INSERT INTO reviews (service_id, user_id, rating, comment) VALUES (?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([$service_id, $user_id, $rating, $comment]);
-            $message = "Merci pour votre évaluation !";
+            try {
+                // Insérer l'évaluation dans la base de données
+                $sql = "INSERT INTO reviews (service_id, user_id, rating, comment) VALUES (?, ?, ?, ?)";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute([$service_id, $user_id, $rating, $comment]);
+    
+                // Ajouter un message de succès
+                $_SESSION['success_message'] = "Merci pour votre évaluation !";
+                header("Location: ../views/index.php");
+                exit;
+            } catch (PDOException $e) {
+                // En cas d'erreur
+                $_SESSION['error_message'] = "Erreur lors de l'ajout de l'évaluation : " . $e->getMessage();
+                header("Location: ../views/index.php");
+                exit;
+            }
         }
-    }
+    }       
 } catch (PDOException $e) {
     // Gestion des erreurs
     $message = "Erreur lors de l'évaluation : " . $e->getMessage();

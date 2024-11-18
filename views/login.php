@@ -2,31 +2,29 @@
 include '../config/db.php';
 session_start();
 
-// Récupérer l'ID de l'utilisateur connecté (si disponible)
 $user_id = $_SESSION['user_id'] ?? null;
 
-// Traitement du formulaire de connexion
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
+    $username_or_email = $_POST['username_or_email'];
     $password = $_POST['password'];
 
-    // Requête pour vérifier si l'utilisateur existe avec l'email fourni
-    $sql = "SELECT * FROM users WHERE email = ?";
+    // Requête SQL pour chercher soit par email, soit par nom d'utilisateur
+    $sql = "SELECT * FROM users WHERE email = ? OR username = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute([$email]);
+    $stmt->execute([$username_or_email, $username_or_email]);
     $user = $stmt->fetch();
 
-    // Vérifier le mot de passe et démarrer la session si les informations sont correctes
+    // Vérification du mot de passe
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
         header("Location: index.php");
         exit;
     } else {
-        // Afficher un message d'erreur en cas d'identifiants incorrects
-        $error_message = "Email ou mot de passe incorrect.";
+        $error_message = "Nom d'utilisateur, email ou mot de passe incorrect.";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -70,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <!-- Formulaire de saisie des identifiants -->
             <form method="POST" id="login-form">
-                <input type="email" name="email" placeholder="Email" required>
+                <input type="text" name="username_or_email" placeholder="Nom d'utilisateur ou Email" required>
 
                 <!-- Champ pour le mot de passe avec icône pour afficher/masquer -->
                 <div class="password-container">
