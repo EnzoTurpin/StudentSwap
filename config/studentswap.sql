@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mer. 13 nov. 2024 à 23:02
+-- Généré le : mar. 19 nov. 2024 à 00:58
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -49,7 +49,7 @@ CREATE TABLE `categories` (
 -- Déchargement des données de la table `categories`
 --
 
-INSERT IGNORE INTO `categories` (`id`, `name`) VALUES
+INSERT INTO `categories` (`id`, `name`) VALUES
 (1, 'Aide aux devoirs'),
 (2, 'Prêt de matériel'),
 (3, 'Cours particuliers'),
@@ -71,7 +71,7 @@ CREATE TABLE `cities` (
 -- Déchargement des données de la table `cities`
 --
 
-INSERT IGNORE INTO `cities` (`id`, `name`) VALUES
+INSERT INTO `cities` (`id`, `name`) VALUES
 (1, 'Paris'),
 (2, 'Marseille'),
 (3, 'Lyon'),
@@ -146,15 +146,6 @@ CREATE TABLE `services` (
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Déchargement des données de la table `services`
---
-
-INSERT IGNORE INTO `services` (`id`, `user_id`, `title`, `description`, `category`, `location`, `points_cost`, `created_at`, `category_id`, `status`, `deleted_at`) VALUES
-(11, 2, 'Daryl', 'Coucou', NULL, 'Lyon', 1, '2024-11-13 12:02:58', 2, 'accepted', NULL),
-(13, 2, 'Salut', 'Heyyy', NULL, 'Limoges', 1, '2024-11-13 12:03:29', 1, 'accepted', NULL),
-(14, 1, 'Test', 'Coucou', NULL, 'Lille', 1, '2024-11-13 12:26:03', 4, 'available', NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -174,9 +165,11 @@ CREATE TABLE `service_requests` (
 -- Déchargement des données de la table `service_requests`
 --
 
-INSERT IGNORE INTO  `service_requests` (`id`, `service_id`, `requester_id`, `status`, `requested_at`, `accepted_at`) VALUES
+INSERT INTO `service_requests` (`id`, `service_id`, `requester_id`, `status`, `requested_at`, `accepted_at`) VALUES
 (4, 13, 1, 'accepted', '2024-11-13 12:03:37', '2024-11-13 12:03:59'),
-(6, 11, 1, 'accepted', '2024-11-13 13:17:10', '2024-11-13 13:17:57');
+(6, 11, 1, 'accepted', '2024-11-13 13:17:10', '2024-11-13 13:17:57'),
+(7, 15, 1, 'accepted', '2024-11-17 03:11:30', '2024-11-17 22:56:30'),
+(8, 14, 2, 'accepted', '2024-11-17 22:55:42', '2024-11-17 22:55:50');
 
 -- --------------------------------------------------------
 
@@ -206,31 +199,23 @@ CREATE TABLE `users` (
   `password` varchar(255) DEFAULT NULL,
   `points` int(11) DEFAULT 10,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `profile_picture` varchar(255) DEFAULT 'default-picture.png'
+  `profile_picture` varchar(255) DEFAULT 'default-picture.png',
+  `is_admin` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `users`
 --
 
-INSERT IGNORE INTO `users` (`id`, `username`, `email`, `password`, `points`, `created_at`, `profile_picture`) VALUES
-(1, 'Panda_Sauvage', 'enzoturpin35@orange.fr', '$2y$10$KyjRvmGWcdVOnucQjJ34yOTcnfPixRhMzMNVKti9Z3JtS2WzH.GGG', 3, '2024-11-10 16:58:03', 'default-picture.png'),
-(2, 'Enzo', 'enzoturpin3531@gmail.com', '$2y$10$PT5.enV34sJCdpZ3HaoxauPYxfecym3zc9IltNyvOZcfnqeJFf7W2', 2, '2024-11-10 19:46:14', 'profile_2.jpg'),
-(3, 'Daryl', 'daryl@gmail.com', '$2y$10$dAV7qoKuXs.pMTADnRLx8e6.la0QxYGOckdbp77rMQmbzInLpLwPy', 10, '2024-11-12 17:19:33', 'default-picture.png'),
-(4, 'maxichoc', 'maxichoc@gmail.com', '$2y$10$iI.zvbueGj5CjteQ7yhDxuGdbpa5/Mdwo7pE3MvW6mzSZcB7Pf1p.', 6, '2024-11-12 17:22:30', 'default-picture.png'),
-(5, 'Marya', 'marya@gmail.com', '$2y$10$xFxR28mVBHr/tyIuJFcKCe/gsKZc4gMkn4/WUIuaC83tKHi2fFQX6', 10, '2024-11-12 17:29:47', 'default-picture.png');
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `points`, `created_at`, `profile_picture`, `is_admin`) VALUES
+(1, 'Panda_Sauvage', 'enzoturpin35@orange.fr', '$2y$10$KyjRvmGWcdVOnucQjJ34yOTcnfPixRhMzMNVKti9Z3JtS2WzH.GGG', 10, '2024-11-10 16:58:03', 'default-picture.png', 0),
+(2, 'Enzo', 'enzoturpin3531@gmail.com', '$2y$10$PT5.enV34sJCdpZ3HaoxauPYxfecym3zc9IltNyvOZcfnqeJFf7W2', 10, '2024-11-10 19:46:14', 'profile_2.jpg', 0),
+(3, 'Daryl', 'daryl@gmail.com', '$2y$10$dAV7qoKuXs.pMTADnRLx8e6.la0QxYGOckdbp77rMQmbzInLpLwPy', 10, '2024-11-12 17:19:33', 'default-picture.png', 0),
+(8, 'admin', 'admin', '$2y$10$k44PDHyBhhdHLTFrVEFUvuo8cZjWhJTtRTYu2qnM/jQgFxEZxUZQa', 9999999, '2024-11-18 16:12:39', 'default-picture.png', 1);
 
 --
 -- Index pour les tables déchargées
 --
-
---
--- Index pour la table `accepted_services`
---
-ALTER TABLE `accepted_services`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `service_id` (`service_id`);
 
 --
 -- Index pour la table `categories`
@@ -290,12 +275,6 @@ ALTER TABLE `users`
 --
 
 --
--- AUTO_INCREMENT pour la table `accepted_services`
---
-ALTER TABLE `accepted_services`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
 -- AUTO_INCREMENT pour la table `categories`
 --
 ALTER TABLE `categories`
@@ -311,19 +290,19 @@ ALTER TABLE `cities`
 -- AUTO_INCREMENT pour la table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT pour la table `services`
 --
 ALTER TABLE `services`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT pour la table `service_requests`
 --
 ALTER TABLE `service_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT pour la table `transactions`
@@ -335,18 +314,11 @@ ALTER TABLE `transactions`
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Contraintes pour les tables déchargées
 --
-
---
--- Contraintes pour la table `accepted_services`
---
-ALTER TABLE `accepted_services`
-  ADD CONSTRAINT `accepted_services_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `accepted_services_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`);
 
 --
 -- Contraintes pour la table `reviews`

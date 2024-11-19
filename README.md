@@ -82,6 +82,9 @@ studentswap/
 │   │   └── style.css
 │   ├── img/
 │   │   └── default-picture.png
+│   ├── js/
+│   │   ├── load_more_reviews.php
+│   │   └── validation.js
 ├── config/
 │   ├── db.php
 │   └── studentswap.sql
@@ -118,6 +121,14 @@ Le projet utilise une base de données MySQL nommée `studentswap`. Voici les pr
 - **services** : stocke les services proposés par les utilisateurs (id, titre, description, catégorie, localisation, coût en points).
 - **service_requests** : stocke les demandes de services (id, service_id, requester_id, statut).
 - **reviews** : stocke les avis laissés par les utilisateurs sur les services reçus (id, service_id, user_id, note, commentaire).
+
+## ⚙️ Configuration Initiale
+
+Lors du premier démarrage de l’application, un compte administrateur par défaut est créé pour simplifier la gestion et l’accès au système. Voici les détails de ce compte :
+
+- **Nom d'utilisateur** : `admin`
+- **Mot de passe** : `admin`
+- **Points** : Infini
 
 ## 📄 Exemples de Code
 
