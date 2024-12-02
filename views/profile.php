@@ -25,19 +25,22 @@ try {
         die("L'utilisateur n'existe pas.");
     }
 
-    // Vérifier si l'utilisateur est administrateur
+    // Préparer l'affichage des points
+    $points_display = '';
     if (isset($user['is_admin']) && $user['is_admin'] == 1) {
+        // SVG pour les administrateurs
+        $points_display = '<img src="../assets/svg/infinite.svg" alt="Points illimités" class="infinite-icon">';
     } else {
-        // Afficher le nombre de points pour les autres utilisateurs
-        echo htmlspecialchars($user['points']) . ' points';
+        // Nombre de points pour les utilisateurs normaux
+        $points_display = htmlspecialchars($user['points']) . ' points';
     }
 
     // Déterminer l'image de profil à afficher
     $profile_picture_path = "../uploads/profile_pictures/" . $user['profile_picture'];
     $default_picture = "../assets/img/default-picture.png";
 
-    // Utiliser l'image par défaut si aucune photo n'est définie ou si le fichier n'existe pas
     if (empty($user['profile_picture']) || !file_exists($profile_picture_path)) {
+        $profile_picture = $default_picture;
     } else {
         $profile_picture = $profile_picture_path;
     }
@@ -101,7 +104,6 @@ try {
     $stmt->execute([$user_id]);
     $requested_by_user_services = $stmt->fetchAll();
 
- 
     // Formater les dates pour les services acceptés
     $mois_francais = [
         'January' => 'Janvier', 'February' => 'Février', 'March' => 'Mars', 'April' => 'Avril',
@@ -111,14 +113,10 @@ try {
 
     foreach ($accepted_services as &$service) {
         if (!empty($service['accepted_at'])) {
-        
-            // Créer un objet DateTime à partir de 'accepted_at'
             $date = new DateTime($service['accepted_at']);
             $formatted_date = $date->format('d F Y à H\hi');
-    
-           // Traduire le mois en français
-           $formatted_date = str_replace(array_keys($mois_francais), array_values($mois_francais), $formatted_date);
-           $service['formatted_date'] = $formatted_date;
+            $formatted_date = str_replace(array_keys($mois_francais), array_values($mois_francais), $formatted_date);
+            $service['formatted_date'] = $formatted_date;
         } else {
             $service['formatted_date'] = "Date inconnue";
         }
@@ -129,25 +127,20 @@ try {
         $email = $_POST['email'];
         $password = $_POST['password'];
 
-        // Mise à jour de la photo de profil
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
             $profile_picture = $_FILES['profile_picture'];
             $file_ext = pathinfo($profile_picture['name'], PATHINFO_EXTENSION);
             $allowed_ext = ['jpg', 'jpeg', 'png', 'gif'];
 
-            // Vérifier si le fichier est une image
             if (in_array(strtolower($file_ext), $allowed_ext)) {
                 $new_filename = "profile_" . $user_id . "." . $file_ext;
                 $upload_dir = "../uploads/profile_pictures/";
                 $upload_path = $upload_dir . $new_filename;
 
-                // Déplacer le fichier téléchargé vers le dossier des photos de profil
                 if (move_uploaded_file($profile_picture['tmp_name'], $upload_path)) {
                     $sql = "UPDATE users SET profile_picture = ? WHERE id = ?";
                     $stmt = $conn->prepare($sql);
                     $stmt->execute([$new_filename, $user_id]);
-
-                    // Mettre à jour la variable de session
                     $user['profile_picture'] = $new_filename;
                     $_SESSION['profile_picture'] = $new_filename;
                     $message = "Photo de profil mise à jour avec succès.";
@@ -159,7 +152,6 @@ try {
             }
         }
 
-        // Mise à jour de l'email et du mot de passe
         if (!empty($password)) {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             $sql = "UPDATE users SET email = ?, password = ? WHERE id = ?";
@@ -178,7 +170,6 @@ try {
 }
 ?>
 
-<!-- Code HTML pour la page de profil -->
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -194,7 +185,6 @@ try {
         <?php include '../includes/header.php'; ?>
 
         <main class="main-content">
-
             <!-- Fenêtre "Mon Profil" -->
             <section class="profile-info">
                 <h2>Mon Profil</h2>
@@ -205,13 +195,7 @@ try {
                     class="profile-picture" onerror="this.onerror=null; this.src='../assets/img/default-picture.png';">
                 <p><strong>Nom d'utilisateur :</strong> <?= htmlspecialchars($user['username']) ?></p>
                 <p><strong>Email :</strong> <?= htmlspecialchars($user['email']) ?></p>
-                <p><strong>Solde de points :</strong>
-                    <?php if (isset($user['is_admin']) && $user['is_admin'] == 1): ?>
-                    <img src="../assets/svg/infinite.svg" alt="Points illimités" class="infinite-icon">
-                    <?php else: ?>
-                    <strong><?= htmlspecialchars($user['points']) ?></strong> points
-                    <?php endif; ?>
-                </p>
+                <p><strong>Solde de points :</strong> <?= $points_display ?></p>
                 <p><strong>Évaluation moyenne :</strong> <?= $average_rating ?> / 5 (<?= $total_reviews ?> avis)</p>
 
                 <?php if ($profile_user_id == $user_id): ?>
