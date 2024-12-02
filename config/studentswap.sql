@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mar. 19 nov. 2024 à 00:58
+-- Généré le : lun. 02 déc. 2024 à 15:14
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -161,16 +161,6 @@ CREATE TABLE `service_requests` (
   `accepted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Déchargement des données de la table `service_requests`
---
-
-INSERT INTO `service_requests` (`id`, `service_id`, `requester_id`, `status`, `requested_at`, `accepted_at`) VALUES
-(4, 13, 1, 'accepted', '2024-11-13 12:03:37', '2024-11-13 12:03:59'),
-(6, 11, 1, 'accepted', '2024-11-13 13:17:10', '2024-11-13 13:17:57'),
-(7, 15, 1, 'accepted', '2024-11-17 03:11:30', '2024-11-17 22:56:30'),
-(8, 14, 2, 'accepted', '2024-11-17 22:55:42', '2024-11-17 22:55:50');
-
 -- --------------------------------------------------------
 
 --
@@ -211,7 +201,7 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `points`, `created_a
 (1, 'Panda_Sauvage', 'enzoturpin35@orange.fr', '$2y$10$KyjRvmGWcdVOnucQjJ34yOTcnfPixRhMzMNVKti9Z3JtS2WzH.GGG', 10, '2024-11-10 16:58:03', 'default-picture.png', 0),
 (2, 'Enzo', 'enzoturpin3531@gmail.com', '$2y$10$PT5.enV34sJCdpZ3HaoxauPYxfecym3zc9IltNyvOZcfnqeJFf7W2', 10, '2024-11-10 19:46:14', 'profile_2.jpg', 0),
 (3, 'Daryl', 'daryl@gmail.com', '$2y$10$dAV7qoKuXs.pMTADnRLx8e6.la0QxYGOckdbp77rMQmbzInLpLwPy', 10, '2024-11-12 17:19:33', 'default-picture.png', 0),
-(8, 'admin', 'admin', '$2y$10$k44PDHyBhhdHLTFrVEFUvuo8cZjWhJTtRTYu2qnM/jQgFxEZxUZQa', 9999999, '2024-11-18 16:12:39', 'default-picture.png', 1);
+(4, 'admin', 'admin', '$2y$10$k44PDHyBhhdHLTFrVEFUvuo8cZjWhJTtRTYu2qnM/jQgFxEZxUZQa', 9999999, '2024-11-18 16:12:39', 'default-picture.png', 1);
 
 --
 -- Index pour les tables déchargées

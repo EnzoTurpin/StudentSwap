@@ -26,10 +26,11 @@ try {
     
     // Vérifier si l'utilisateur est administrateur
     if (isset($user['is_admin']) && $user['is_admin'] == 1) {
+        // Administrateur, aucun affichage nécessaire ici.
     } else {
-        // Afficher le nombre de points pour les autres utilisateurs
-        echo htmlspecialchars($user['points']) . ' points';
-    }
+        // Vous pouvez éventuellement enregistrer les points dans une variable si nécessaire.
+        $user_points = htmlspecialchars($user['points'] ?? 10);
+    }    
 
     // Récupérer les catégories et les villes
     $sql = "SELECT * FROM categories";
