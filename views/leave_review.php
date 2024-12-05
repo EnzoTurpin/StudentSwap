@@ -24,7 +24,7 @@ $message = "";
 
 try {
     // Récupérer les informations du service
-    $sql = "SELECT services.*, users.username AS provider 
+    $sql = "SELECT services.*, users.username AS provider, users.id AS provider_id
             FROM services 
             JOIN users ON services.user_id = users.id 
             WHERE services.id = ?";
@@ -34,14 +34,23 @@ try {
 
     // Vérifier si le service existe
     if (!$service) {
-        die("Le service n'existe pas.");
+        $_SESSION['error_message'] = "Le service n'existe pas.";
+        header("Location: ../views/index.php");
+        exit;
+    }
+
+    // Empêcher l'utilisateur d'évaluer son propre service
+    if ($service['provider_id'] == $user_id) {
+        $_SESSION['error_message'] = "Vous ne pouvez pas évaluer votre propre service.";
+        header("Location: ../views/index.php");
+        exit;
     }
 
     // Ajouter une évaluation lorsque le formulaire est soumis
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $rating = $_POST['rating'];
         $comment = $_POST['comment'];
-    
+
         // Valider la note
         if ($rating < 1 || $rating > 5) {
             $_SESSION['error_message'] = "La note doit être entre 1 et 5.";
@@ -53,7 +62,7 @@ try {
                 $sql = "INSERT INTO reviews (service_id, user_id, rating, comment) VALUES (?, ?, ?, ?)";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute([$service_id, $user_id, $rating, $comment]);
-    
+
                 // Ajouter un message de succès
                 $_SESSION['success_message'] = "Merci pour votre évaluation !";
                 header("Location: ../views/index.php");
@@ -65,10 +74,12 @@ try {
                 exit;
             }
         }
-    }       
+    }
 } catch (PDOException $e) {
     // Gestion des erreurs
-    $message = "Erreur lors de l'évaluation : " . $e->getMessage();
+    $_SESSION['error_message'] = "Erreur lors de l'accès au service : " . $e->getMessage();
+    header("Location: ../views/index.php");
+    exit;
 }
 ?>
 
@@ -86,6 +97,19 @@ try {
     <div class="wrapper">
         <!-- Inclusion de l'en-tête -->
         <?php include '../includes/header.php'; ?>
+
+        <!-- Afficher les messages d'erreur ou de succès -->
+        <?php if (isset($_SESSION['error_message'])): ?>
+        <div class="error-banner">
+            <?= htmlspecialchars($_SESSION['error_message']) ?>
+        </div>
+        <?php unset($_SESSION['error_message']); endif; ?>
+
+        <?php if (isset($_SESSION['success_message'])): ?>
+        <div class="success-banner">
+            <?= htmlspecialchars($_SESSION['success_message']) ?>
+        </div>
+        <?php unset($_SESSION['success_message']); endif; ?>
 
         <!-- Formulaire d'évaluation -->
         <main class="main-content">

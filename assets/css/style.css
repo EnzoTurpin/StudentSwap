@@ -337,6 +337,15 @@ svg {
   text-align: center;
 }
 
+.error-banner {
+  background-color: var(--color-error-background);
+  color: var(--color-error-text);
+  padding: 15px 20px;
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 2px solid var(--color-error-text);
+}
+
 /* Styles de l'ID utilisateur */
 .user_id {
   color: var(--color-button-background);
