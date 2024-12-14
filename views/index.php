@@ -39,8 +39,8 @@ try {
     $cities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Initialiser les critères de recherche
-    $raw_search_query = $_GET['search_query'] ?? ''; // Texte brut fourni par l'utilisateur
-    $search_query = '%' . $raw_search_query . '%'; // Utilisé pour la requête SQL
+    $raw_search_query = $_GET['search_query'] ?? '';
+    $search_query = '%' . $raw_search_query . '%';
     $selected_category = $_GET['category_id'] ?? '';
     $selected_city = $_GET['city_id'] ?? '';
 
