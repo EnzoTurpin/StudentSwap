@@ -23,14 +23,11 @@ try {
             $user['points'] = 10;
         }
     }
-    
+
     // Vérifier si l'utilisateur est administrateur
-    if (isset($user['is_admin']) && $user['is_admin'] == 1) {
-        // Administrateur, aucun affichage nécessaire ici.
-    } else {
-        // Vous pouvez éventuellement enregistrer les points dans une variable si nécessaire.
+    if (!isset($user['is_admin']) || $user['is_admin'] != 1) {
         $user_points = htmlspecialchars($user['points'] ?? 10);
-    }    
+    }
 
     // Récupérer les catégories et les villes
     $sql = "SELECT * FROM categories";
@@ -42,9 +39,10 @@ try {
     $cities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Initialiser les critères de recherche
+    $raw_search_query = $_GET['search_query'] ?? ''; // Texte brut fourni par l'utilisateur
+    $search_query = '%' . $raw_search_query . '%'; // Utilisé pour la requête SQL
     $selected_category = $_GET['category_id'] ?? '';
     $selected_city = $_GET['city_id'] ?? '';
-    $search_query = $_GET['search_query'] ?? '';
 
     // Construire la requête de recherche pour les services disponibles
     $sql = "SELECT services.*, users.username, categories.name AS category_name 
@@ -60,7 +58,7 @@ try {
     if (!empty($selected_city)) {
         $sql .= " AND services.location = :city_id";
     }
-    if (!empty($search_query)) {
+    if (!empty($raw_search_query)) {
         $sql .= " AND (services.title LIKE :search_query OR services.description LIKE :search_query)";
     }
 
@@ -74,8 +72,7 @@ try {
     if (!empty($selected_city)) {
         $stmt->bindParam(':city_id', $selected_city, PDO::PARAM_STR);
     }
-    if (!empty($search_query)) {
-        $search_query = '%' . $search_query . '%';
+    if (!empty($raw_search_query)) {
         $stmt->bindParam(':search_query', $search_query, PDO::PARAM_STR);
     }
 
@@ -150,7 +147,7 @@ try {
                 <section class="search-form">
                     <form method="GET" action="index.php">
                         <input type="text" name="search_query" placeholder="Rechercher..."
-                            value="<?= htmlspecialchars($search_query) ?>">
+                            value="<?= htmlspecialchars($raw_search_query) ?>">
                         <select name="category_id">
                             <option value="">Catégorie</option>
                             <?php foreach ($categories as $category): ?>
